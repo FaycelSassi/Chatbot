@@ -4,8 +4,8 @@
     -   Anaconda : conda 22.11.1
     -   rasa :  3.4.1
 # Chatbot description:
-An initial version containing greetings, moods and Definitions for tcp 
+    An initial version containing greetings, moods and Definitions for tcp 
     to utilize run: 
-rasa init 
+    -   rasa init 
     and to train run:
-rasa interactive
+    -   rasa interactive
