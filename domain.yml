@@ -1,0 +1,36 @@
+version: '3.1'
+intents:
+- affirm
+- ask_tcp
+- ask_tcp_work
+- bot_challenge
+- deny
+- goodbye
+- greet
+- mood_great
+- mood_unhappy
+responses:
+  utter_greet:
+  - text: Hey! How are you?
+  utter_cheer_up:
+  - text: 'Here is something to cheer you up:'
+    image: https://i.imgur.com/nGF1K8f.jpg
+  utter_did_that_help:
+  - text: Did that help you?
+  utter_tcp:
+  - text: Transmission Control Protocol (TCP)  is one of the main protocols of the Internet protocol suite. It originated in the initial network implementation in which it complemented the Internet Protocol. Therefore, the entire suite is commonly referred to as TCP/IP.
+  utter_tcp_work:
+  - text: TCP provides communication between an application program and the Internet Protocol (they are frequently written as TCP/IP.) An application does not need to required packet fragmentation on the transmission medium or other mechanisms for sending data in order to be sent via TCP.
+  utter_happy:
+  - text: Great, carry on!
+  utter_goodbye:
+  - text: Bye
+  utter_iamabot:
+  - text: I am a bot, powered by Rasa.
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true
+actions:
+- utter_greet
+- utter_happy
+- utter_tcp
