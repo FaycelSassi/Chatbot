@@ -5,7 +5,7 @@
     -   rasa :  3.4.1
 # Chatbot description:
 An initial version containing greetings, moods and Definitions for tcp 
-to utilize run: 
+-to utilize run: 
 rasa init 
-and to train run:
+-and to train run:
 rasa interactive
