@@ -77,6 +77,12 @@ nlu:
     - extremly sad
     - so saad
     - so sad
+- intent: ask_time
+  examples: |
+    - What time is it
+    - What's the time
+    - tell me the time 
+    - give me the time
 - intent: bot_challenge
   examples: |
     - are you a bot?
@@ -91,5 +97,8 @@ nlu:
     - what does tcp mean
 - intent: ask_tcp_work
   examples: |
-    - How does TCP work?
+    - How does TCP work
     - how to use TCP?
+
+
+    

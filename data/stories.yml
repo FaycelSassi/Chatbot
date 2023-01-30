@@ -18,6 +18,13 @@ stories:
   - action: utter_did_that_help
   - intent: affirm
   - action: utter_happy
+  
+- story: time_path
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: ask_time
+  - action: action_show_time
 
 - story: tcp path 1
   steps: 
@@ -52,3 +59,5 @@ stories:
   - action: utter_happy
   - intent: ask_tcp
   - action: utter_tcp
+
+
