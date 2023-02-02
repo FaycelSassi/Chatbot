@@ -2,23 +2,7 @@ version: "3.1"
 
 stories:
 
-- story: happy path
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_great
-  - action: utter_happy
 
-- story: sad path 1
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: affirm
-  - action: utter_happy
-  
 - story: time_path
   steps:
   - intent: greet
@@ -26,38 +10,11 @@ stories:
   - intent: ask_time
   - action: action_show_time
 
-- story: tcp path 1
+- story: definition_path 
   steps: 
-  - intent: ask_tcp
-  - action: utter_tcp
-  - intent: ask_tcp_work
-  - action: utter_tcp_work
-
-- story: tcp path 2
-  steps:
-  - intent: ask_tcp_work
-  - action: utter_tcp_work
-  - intent: ask_tcp
-  - action: utter_tcp
-  
-
-- story: sad path 2
-  steps:
   - intent: greet
   - action: utter_greet
-  - intent: mood_unhappy
-  - action: utter_cheer_up
-  - action: utter_did_that_help
-  - intent: deny
-  - action: utter_goodbye
-
-- story: interactive_story_1
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: mood_great
-  - action: utter_happy
-  - intent: ask_tcp
-  - action: utter_tcp
-
+  - intent: ask_definition
+  - action: action_give_def
+  - action: utter_another_def
 

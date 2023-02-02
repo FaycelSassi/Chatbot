@@ -2,28 +2,37 @@ version: '3.1'
 intents:
 - affirm
 - ask_time
-- ask_tcp
+- ask_definition
 - ask_tcp_work
 - bot_challenge
 - deny
 - goodbye
 - greet
-- mood_great
-- mood_unhappy
+
+entities:
+  - definition
+
+slots:
+  definition:
+    type: text
+    mappings:
+    - type: from_entity
+      entity: definition
 
 actions:
 - action_show_time
+- action_give_def
 
 responses:
   utter_greet:
-  - text: Hey! How are you?
+  - text: Hey! How can i help you?
   utter_cheer_up:
   - text: 'Here is something to cheer you up:'
     image: https://i.imgur.com/nGF1K8f.jpg
   utter_did_that_help:
   - text: Did that help you?
-  utter_tcp:
-  - text: Transmission Control Protocol (TCP)  is one of the main protocols of the Internet protocol suite. It originated in the initial network implementation in which it complemented the Internet Protocol. Therefore, the entire suite is commonly referred to as TCP/IP.
+  utter_another_def:
+  - text: want an another definition?
   utter_tcp_work:
   - text: TCP provides communication between an application program and the Internet Protocol (they are frequently written as TCP/IP.) An application does not need to required packet fragmentation on the transmission medium or other mechanisms for sending data in order to be sent via TCP.
   utter_happy:

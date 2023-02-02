@@ -44,40 +44,7 @@ nlu:
     - don't like that
     - no way
     - not really
-- intent: mood_great
-  examples: |
-    - perfect
-    - great
-    - amazing
-    - feeling like a king
-    - wonderful
-    - I am feeling very good
-    - I am great
-    - I am amazing
-    - I am going to save the world
-    - super stoked
-    - good
-    - extremely good
-    - so so perfect
-    - so good
-    - so perfect
-    - i'm fine
-- intent: mood_unhappy
-  examples: |
-    - my day was horrible
-    - I am sad
-    - I don't feel very well
-    - I am disappointed
-    - super sad
-    - I'm so sad
-    - sad
-    - very sad
-    - unhappy
-    - not good
-    - not very good
-    - extremly sad
-    - so saad
-    - so sad
+    
 - intent: ask_time
   examples: |
     - What time is it
@@ -90,16 +57,19 @@ nlu:
     - are you a human?
     - am I talking to a bot?
     - am I talking to a human?
-- intent: ask_tcp
+- intent: ask_definition
   examples: |
-    - What is TCP?
-    - give me a TCP definition
-    - give me the definition for TCP
-    - what does tcp mean
+    - what is [tcp](definition)
+    - what is [nli](definition)
 - intent: ask_tcp_work
   examples: |
     - How does TCP work
     - how to use TCP?
-
+    
+- intent: have_problem
+  examples: |
+    - i have a problem
+    - i need help 
+    - can you help me
 
     
