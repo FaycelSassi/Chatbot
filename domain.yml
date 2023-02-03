@@ -26,15 +26,10 @@ actions:
 responses:
   utter_greet:
   - text: Hey! How can i help you?
-  utter_cheer_up:
-  - text: 'Here is something to cheer you up:'
-    image: https://i.imgur.com/nGF1K8f.jpg
   utter_did_that_help:
   - text: Did that help you?
   utter_another_def:
   - text: want an another definition?
-  utter_tcp_work:
-  - text: TCP provides communication between an application program and the Internet Protocol (they are frequently written as TCP/IP.) An application does not need to required packet fragmentation on the transmission medium or other mechanisms for sending data in order to be sent via TCP.
   utter_happy:
   - text: Great, carry on!
   utter_goodbye:
