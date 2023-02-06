@@ -14,7 +14,72 @@ stories:
   steps: 
   - intent: greet
   - action: utter_greet
-  - intent: ask_definition
-  - action: action_give_def
+  - intent: ask_help_definition
+  - action: utter_help_definition
+  - intent: give_definition
+  - action: def_form
+  - active_loop: def_form
+  - slot_was_set:
+    - requested_slot: definition
+  - slot_was_set:
+    - requested_slot: null
+  - active_loop: null
+  - action: action_ask_definition
   - action: utter_another_def
 
+
+- story: another_definition_path 
+  steps: 
+  - action: utter_another_def
+  - intent: affirm
+  - action: utter_help_definition
+  - intent: ask_definition
+  - action: action_ask_definition
+  
+- story: another_definition_path 
+  steps: 
+  - action: utter_another_def
+  - intent: deny
+  - action: utter_happy
+
+
+
+- story: interactive_story_1
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: ask_help_definition
+  - action: utter_help_definition
+  - intent: give_definition
+  - action: def_form
+  - action: action_ask_definition
+  - action: utter_another_def
+
+- story: interactive_story_1
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: ask_help_definition
+  - action: utter_help_definition
+  - intent: give_definition
+  - action: def_form
+  - active_loop: def_form
+  - slot_was_set:
+    - requested_slot: definition
+  - slot_was_set:
+    - definition: i need a def
+  - slot_was_set:
+    - requested_slot: null
+  - active_loop: null
+  - action: action_ask_definition
+  - action: utter_another_def
+  - intent: give_definition
+  - action: def_form
+  - active_loop: def_form
+  - slot_was_set:
+    - requested_slot: null
+  - active_loop: null
+  - action: action_ask_definition
+  - action: utter_another_def
+  - intent: deny
+  - action: utter_happy

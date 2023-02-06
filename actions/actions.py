@@ -1,6 +1,6 @@
 import datetime as dt 
 from typing import Any, Text, Dict, List
-
+import pymysql
 from rasa_sdk import Action, Tracker
 from rasa_sdk.executor import CollectingDispatcher
 
@@ -24,20 +24,37 @@ class ActionHelloWorld(Action):
 class ActionDefinion(Action):
    
     def name(self) -> Text:
-        return "action_give_def"
-  
+        return "action_ask_definition"
+    
     def run(self, dispatcher: CollectingDispatcher,
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
- 
-        # play rock paper scissors
-        user_choice = tracker.get_slot("definition")
-        dispatcher.utter_message(text=f"You chose {user_choice}")
+        #setting up the connection to the database
 
- 
-        if user_choice == "tcp" :
-            dispatcher.utter_message(text="Transmission Control Protocol (TCP)  is one of the main protocols of the Internet protocol suite. It originated in the initial network implementation in which it complemented the Internet Protocol. Therefore, the entire suite is commonly referred to as TCP/IP.")
-        if user_choice == "nli" :
-            dispatcher.utter_message(text="Nli definition")
+        connection = pymysql.connect(
+            host='localhost',
+            user='root',
+            password='password',
+            db='rasabot',
+        )
+        message = tracker.latest_message.get('text')
+
+        #creating a cursor to execute SQL commands
+        cursor = connection.cursor()
+        # Query data   
+        print(message)
+        if message == None:
+            sql="empty"
+        else: sql = "SELECT * FROM `defs` WHERE `abbrv`= '"+ message.upper()+"' OR `fullname`='"+message.upper()+"';"
+        cursor.execute(sql)
+        result = cursor.fetchone()
+        aff=""
+        if result==None :
+            aff="Sorry, definition is yet to be added"
+        else: aff=result[2]+"("+result[1]+") "+result[3]
         
+        dispatcher.utter_message(aff)
+
+                
         return []
+        

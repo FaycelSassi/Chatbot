@@ -44,12 +44,11 @@ nlu:
     - don't like that
     - no way
     - not really
-    
 - intent: ask_time
   examples: |
     - What time is it
     - What's the time
-    - tell me the time 
+    - tell me the time
     - give me the time
 - intent: bot_challenge
   examples: |
@@ -57,19 +56,20 @@ nlu:
     - are you a human?
     - am I talking to a bot?
     - am I talking to a human?
-- intent: ask_definition
+- intent: give_definition
   examples: |
-    - what is [tcp](definition)
-    - what is [nli](definition)
-- intent: ask_tcp_work
+    - [](definition)
+    - [tcp](definition)
+    - [nir](definition)
+    - [kpi](definition)
+- intent: ask_help_definition
   examples: |
-    - How does TCP work
-    - how to use TCP?
-    
+    - i need a definition
+    - can you define something
+    - give me the definition for
+    - i need a def
 - intent: have_problem
   examples: |
     - i have a problem
-    - i need help 
+    - i need help
     - can you help me
-
-    
