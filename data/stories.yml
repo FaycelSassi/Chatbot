@@ -26,9 +26,8 @@ stories:
   - active_loop: null
   - action: action_ask_definition
   - action: utter_another_def
-
-
-- story: another_definition_path 
+  
+- story: another_definition_path_1
   steps: 
   - action: utter_another_def
   - intent: affirm
@@ -36,7 +35,48 @@ stories:
   - intent: ask_definition
   - action: action_ask_definition
   
-- story: another_definition_path 
+- story: add_definition_path 
+  steps: 
+  - intent: greet
+  - action: utter_greet
+  - intent: ask_add_def
+  - action: utter_ask_term
+  - action: full_def_form
+  - active_loop: full_def_form
+  - slot_was_set:
+    - requested_slot: fullname 
+  - slot_was_set:
+    - requested_slot: full_def
+  - slot_was_set:
+    - requested_slot: null
+  - active_loop: null
+  - action: action_add_def
+  - action: utter_slots_values
+  - action: action_reset_all_slots
+  - action: utter_add_another_def
+
+- story: add_another_definition_path_1
+  steps: 
+  - action: utter_add_another_def
+  - intent: affirm 
+  - action: utter_ask_term
+  - action: full_def_form
+  - active_loop: full_def_form
+  - slot_was_set:
+    - requested_slot: fullname 
+  - slot_was_set:
+    - requested_slot: full_def
+  - slot_was_set:
+    - requested_slot: null
+  - active_loop: null
+  - action: action_add_def
+  - action: utter_slots_values
+  - action: action_reset_all_slots
+  - action: utter_add_another_def
+
+
+  
+- story: another_definition_path _2
   steps: 
   - action: utter_another_def
   - intent: deny
@@ -55,7 +95,7 @@ stories:
   - action: action_ask_definition
   - action: utter_another_def
 
-- story: interactive_story_1
+- story: interactive_story_2
   steps:
   - intent: greet
   - action: utter_greet

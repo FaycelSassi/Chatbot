@@ -2,8 +2,11 @@ version: '3.1'
 intents:
 - affirm
 - ask_definition
+- ask_add_definition
 - ask_help_definition
+- ask_add_def
 - ask_time
+- give_full_definition
 - bot_challenge
 - deny
 - give_definition
@@ -13,6 +16,10 @@ forms:
   def_form:
     required_slots:
     - definition
+  full_def_form:
+    required_slots:
+    - fullname
+    - full_def
 slots:
   definition:
     type: text
@@ -22,14 +29,39 @@ slots:
       conditions:
       - active_loop: def_form
         requested_slot: definition
+  fullname:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_text
+        conditions:
+         - active_loop: full_def_form
+           requested_slot: fullname
+
+  full_def:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_text
+        conditions:
+         - active_loop: full_def_form
+           requested_slot: full_def
+
 actions:
 - action_ask_definition
 - action_show_time
+- action_add_def
+- action_reset_all_slots
 - utter_another_def
 - utter_did_that_help
+- utter_def_added
 - utter_greet
+- utter_slots_values
+- utter_add_def_1
 - utter_happy
 - utter_help_definition
+
+
 responses:
   utter_greet:
   - text: Hey! How can i help you?
@@ -37,14 +69,24 @@ responses:
   - text: what's the term u need the defintion for
   utter_did_that_help:
   - text: Did that help you?
+  utter_add_def_1:
+  - text: what's the term you'd like to add?
   utter_another_def:
   - text: want an another definition?
+  utter_add_another_def:
+  - text: want to add an another definition?
   utter_happy:
   - text: Great, hope that helped!
   utter_goodbye:
   - text: Bye
   utter_iamabot:
   - text: I am a bot, powered by Rasa.
+  utter_def_added:
+  - text: Definition added.
+  utter_ask_term:
+  - text: what's the term you'd like to add.
+  utter_slots_values:
+  - text: I will remember that new definition for {fullname} is :{full_def}!
 session_config:
   session_expiration_time: 60
   carry_over_slots_to_new_session: true

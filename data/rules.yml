@@ -30,3 +30,22 @@ rules:
   - action: action_ask_definition
   - action: utter_another_def
 
+- rule: Activate form 2
+  steps:
+  - action: full_def_form
+  - active_loop: full_def_form
+
+- rule: Submit form 2
+  condition:
+  - active_loop: full_def_form
+  steps:
+  - action: full_def_form
+  - active_loop: null
+  - slot_was_set:
+    - requested_slot: null
+  - action: action_add_def
+  - action: utter_slots_values
+  - action: action_reset_all_slots
+  - action: utter_add_another_def
+
+

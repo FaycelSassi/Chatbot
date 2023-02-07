@@ -1,0 +1,36 @@
+[
+  {
+    "tag_name": "entity",
+    "ids_to_tags": {
+      "1": "B-definition",
+      "2": "I-definition",
+      "3": "L-definition",
+      "4": "U-definition",
+      "5": "B-full_def",
+      "6": "I-full_def",
+      "7": "L-full_def",
+      "8": "U-full_def",
+      "9": "B-fullname",
+      "10": "I-fullname",
+      "11": "L-fullname",
+      "12": "U-fullname",
+      "0": "O"
+    },
+    "tags_to_ids": {
+      "B-definition": 1,
+      "I-definition": 2,
+      "L-definition": 3,
+      "U-definition": 4,
+      "B-full_def": 5,
+      "I-full_def": 6,
+      "L-full_def": 7,
+      "U-full_def": 8,
+      "B-fullname": 9,
+      "I-fullname": 10,
+      "L-fullname": 11,
+      "U-fullname": 12,
+      "O": 0
+    },
+    "num_tags": 13
+  }
+]

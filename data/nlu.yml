@@ -62,14 +62,24 @@ nlu:
     - [tcp](definition)
     - [nir](definition)
     - [kpi](definition)
+
+- intent: give_full_definition
+  examples: |
+    - [nli](fullname)
+    - [wifi](fullname)
+    - [is to help add a definition](full_def)
+    - [is a network device for tech](full_def)
+   
+
 - intent: ask_help_definition
   examples: |
     - i need a definition
     - can you define something
     - give me the definition for
     - i need a def
-- intent: have_problem
+
+- intent: ask_add_def
   examples: |
-    - i have a problem
-    - i need help
-    - can you help me
+    - i'd like to add a new definition
+    - i want to add a definition
+    - can i add a definition
