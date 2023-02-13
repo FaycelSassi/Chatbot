@@ -1,10 +1,18 @@
 import datetime as dt 
 from typing import Any, Text, Dict, List
+import pymongo
+import json
+import pandas as pd
 import pymysql
 from rasa_sdk import Action, Tracker, FormValidationAction
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 from rasa_sdk.events import AllSlotsReset
+
+#setting up the connection to the database
+client = pymongo.MongoClient("mongodb://localhost:27017/")
+# Get the database
+db = client["rasa"]
 
 
 #the show time action
@@ -22,7 +30,7 @@ class ActionHelloWorld(Action):
         return []
 
  
- #sending definitionf
+ #sending definition
 class ActionDefinion(Action):
    
     def name(self) -> Text:
@@ -31,50 +39,34 @@ class ActionDefinion(Action):
     def run(self, dispatcher: CollectingDispatcher,
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        #setting up the connection to the database
-
-        connection = pymysql.connect(
-            host='localhost',
-            user='root',
-            password='password',
-            db='rasabot',
-        )
         message = tracker.latest_message.get('text')
-
-        #creating a cursor to execute SQL commands
-        cursor = connection.cursor()
-        # Query data   
+        # Get the collection
+        collection = db["chap1"]
+        # Find all documents in the collection
+        
         print(message)
-        if message == None:
-            sql="empty"
-        else: sql = "SELECT * FROM `defs` WHERE `abbrv`= '"+ message.upper()+"' OR `fullname`='"+message.upper()+"';"
-        cursor.execute(sql)
-        result = cursor.fetchone()
+        if message != None:
+            document = collection.find_one({"$or": [{"abbrv": message.upper()},
+                                       {"fullname": message.upper()}]})
+        print(document)
         aff=""
-        if result==None :
+        if document==None :
             aff="Sorry, definition is yet to be added"
-        else: aff=result[2]+"("+result[1]+") "+result[3]
-        cursor.close()
-        connection.close()
+        else:
+            df = pd.DataFrame(document, index=[1])
+            aff=document['fullname']+"("+document['abbrv']+") "+document['definition']
+            print(aff)
         dispatcher.utter_message(aff)
-
-                
+    
         return []
 
 
 #validate existence
 def clean_name(name):
-    connection = pymysql.connect(
-            host='localhost',
-            user='root',
-            password='password',
-            db='rasabot',
-        )
-    cursor = connection.cursor()
-    sql = "SELECT * FROM `defs` WHERE `abbrv`= '"+ name.upper()+"' OR `fullname`='"+name.upper()+"';"
-    cursor.execute(sql)
-    result = cursor.fetchone()
-    if(result == None) : 
+    collection = db["chap1"]
+    document = collection.find_one({"$or": [{"abbrv": name.upper()},
+                                       {"fullname": name.upper()}]})
+    if(document == None) : 
         return "".join([c for c in name if c.isalpha()])
 
 #the add definition action
@@ -85,17 +77,11 @@ class ActionAddDefinition(Action):
     def run(self, dispatcher: CollectingDispatcher,
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-
-        
+        # Get the collection
+        collection = db["chap1"]
         print("in")
         fullname = tracker.get_slot("fullname")
         full_def= tracker.get_slot("full_def")
-        connection = pymysql.connect(
-            host='localhost',
-            user='root',
-            password='password',
-            db='rasabot',
-        )
         x = fullname.split("#")
         abbrv=""
         if len(x)==1:
@@ -103,14 +89,17 @@ class ActionAddDefinition(Action):
         else:
             for i in (x):
                 abbrv+=i[0]
-        cursor = connection.cursor()
-        sql = "INSERT INTO `defs`(`abbrv`, `fullname`, `definition`) VALUES('"+abbrv.upper()+"','"+fullname.upper()+"','"+full_def+"')"
-        print(sql)
-        cursor.execute(sql)
-        connection.commit()
-        cursor.close()
-        connection.close()
-        dispatcher.utter_message("definition added")
+        new_document = {
+            "abbrv": abbrv.upper(),
+            "fullname": fullname.upper(),
+            "definition": full_def,
+            "others": ""
+        }
+        result = collection.insert_one(new_document)
+        if(result.inserted_id!= None):
+            dispatcher.utter_message("definition added")
+        else:
+            dispatcher.utter_message("there was a problem with the addition please try again")
         return []
     #the reset all slots action
     #  action
