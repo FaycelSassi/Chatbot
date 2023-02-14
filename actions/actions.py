@@ -31,34 +31,38 @@ class ActionHelloWorld(Action):
 
  
  #sending definition
-class ActionDefinion(Action):
-   
+class ValidateSimplePizzaForm(FormValidationAction):
     def name(self) -> Text:
-        return "action_ask_definition"
-    
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        message = tracker.latest_message.get('text')
+        return "validate_def_form"
+
+    def validate_definition(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `definition` value."""
         # Get the collection
         collection = db["chap1"]
         # Find all documents in the collection
-        
-        print(message)
-        if message != None:
-            document = collection.find_one({"$or": [{"abbrv": message.upper()},
-                                       {"fullname": message.upper()}]})
-        print(document)
-        aff=""
-        if document==None :
-            aff="Sorry, definition is yet to be added"
+        slot_value=slot_value.replace(" ", "")
+        print(slot_value)
+        aff="Sorry, definition is yet to be added"
+        if slot_value != None:
+            document = collection.find_one({"$or": [{"abbrv": slot_value.upper()},
+                                       {"fullname": slot_value.upper()}]})
+            print(document)
+            if document!=None :
+                aff=document['fullname']+"("+ document['abbrv']+") "+ document['definition']
+                if document['others']!="":
+                    aff=document['fullname']+"("+ document['abbrv']+") "+ document['definition']+" for more information: "+document['others']
         else:
-            df = pd.DataFrame(document, index=[1])
-            aff=document['fullname']+"("+document['abbrv']+") "+document['definition']
-            print(aff)
+            dispatcher.utter_message(text=f"Can you please write the term that you're looking for again")
+            return {"definition": None}
+        print(aff)
         dispatcher.utter_message(aff)
-    
-        return []
+        return {"definition": slot_value}
 
 
 #validate existence

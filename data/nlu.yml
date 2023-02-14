@@ -56,13 +56,16 @@ nlu:
     - are you a human?
     - am I talking to a bot?
     - am I talking to a human?
+#the intent to give the name of the definition we'd like to know about
 - intent: give_definition
   examples: |
     - [](definition)
-    - [tcp](definition)
-    - [nir](definition)
-    - [kpi](definition)
-
+    - what is [tcp](definition)
+    - what's included in the feature [nir](definition)
+    - give me the definition of the feature [kpi](definition)
+    - what is the [FAJ 121 1447](definition)
+    - what does [Uplink Adaptive Retransmission Enhancement] (definition) do
+#the intent to add a definition to the db
 - intent: give_full_definition
   examples: |
     - [nli](fullname)

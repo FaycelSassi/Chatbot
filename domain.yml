@@ -12,10 +12,16 @@ intents:
 - give_definition
 - goodbye
 - greet
+
+entities:
+ - definition
+
 forms:
+  #form for asking for a defintion
   def_form:
     required_slots:
     - definition
+  #form for adding a definition
   full_def_form:
     required_slots:
     - fullname
@@ -25,7 +31,8 @@ slots:
     type: text
     influence_conversation: true
     mappings:
-    - type: from_text
+    - type: from_entity
+      entity: definition
       conditions:
       - active_loop: def_form
         requested_slot: definition
@@ -37,7 +44,6 @@ slots:
         conditions:
          - active_loop: full_def_form
            requested_slot: fullname
-
   full_def:
     type: text
     influence_conversation: true
@@ -48,7 +54,7 @@ slots:
            requested_slot: full_def
 
 actions:
-- action_ask_definition
+- validate_def_form
 - action_show_time
 - action_add_def
 - action_reset_all_slots

@@ -13,13 +13,13 @@ rules:
   - action: utter_iamabot
 
 
-- rule: Activate form
+- rule: Activate def form
   steps:
   - intent: give_definition
   - action: def_form
   - active_loop: def_form
 
-- rule: Submit form
+- rule: Submit def form
   condition:
   - active_loop: def_form
   steps:
@@ -27,8 +27,9 @@ rules:
   - active_loop: null
   - slot_was_set:
     - requested_slot: null
-  - action: action_ask_definition
+  - action: validate_def_form
   - action: utter_another_def
+
 
 - rule: Activate form 2
   steps:
