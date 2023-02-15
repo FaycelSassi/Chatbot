@@ -15,21 +15,6 @@ client = pymongo.MongoClient("mongodb://localhost:27017/")
 db = client["rasa"]
 
 
-#the show time action
-class ActionHelloWorld(Action):
-
-    def name(self) -> Text:
-        return "action_show_time"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-
-        dispatcher.utter_message(text=f"{dt.datetime.now()}")
-
-        return []
-
- 
  #sending definition
 class ValidateSimplePizzaForm(FormValidationAction):
     def name(self) -> Text:
@@ -105,11 +90,41 @@ class ActionAddDefinition(Action):
         else:
             dispatcher.utter_message("there was a problem with the addition please try again")
         return []
-    #the reset all slots action
-    #  action
-    class ActionResetAllSlots(Action):
-        def name(self):
+
+#the reset all slots action
+class ActionResetAllSlots(Action):
+    def name(self):
             return "action_reset_all_slots"
 
-        def run(self, dispatcher, tracker, domain):
+    def run(self, dispatcher, tracker, domain):
             return [AllSlotsReset()]
+
+class ValidateReseauPhyForm(FormValidationAction):
+    def name(self) -> Text:
+        return "validate_reseau_phy_form"
+
+    def validate_site(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `site` value."""
+        if slot_value!= None:
+                # Get the collection
+            collection = db["reseau-physique"]
+            # Find all documents in the collection
+            slot_value=slot_value.replace(" ", "")
+            print(slot_value)
+            aff="Sorry, reseau is yet to be added"
+            document = collection.find_one({"$or": [{"Site": slot_value.upper()},
+                                        {"Site_Code": slot_value.upper()},{"Identifiant": slot_value.upper()}]})
+            if document!=None :
+                aff=document['Site']+" : "+ document['Identifiant']+" : "+ document['Site_Code']+" : "+ document['LAC']+" : "+ document['Bande de fréquences']
+                print(aff)
+            dispatcher.utter_message(aff)
+            return {"site": slot_value}
+        else:
+            dispatcher.utter_message(text=f"Can you please write the term that you're looking for again")
+            return {"site": None}

@@ -3,13 +3,6 @@ version: "3.1"
 stories:
 
 
-- story: time_path
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: ask_time
-  - action: action_show_time
-
 - story: definition_path 
   steps: 
   - intent: greet
@@ -125,3 +118,28 @@ stories:
   - action: utter_another_def
   - intent: deny
   - action: utter_happy
+
+- story: interactive_story_1
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: ask_for_reseau_phy
+  - action: reseau_phy_form
+  - active_loop: reseau_phy_form
+  - slot_was_set:
+    - requested_slot: site
+  - slot_was_set:
+    - site: HBIRA_GSM
+  - slot_was_set:
+    - site: MAH3321
+  - slot_was_set:
+    - site: MHERZA_EST_GSM
+  - slot_was_set:
+    - site: 33211
+  - slot_was_set:
+    - site: MAH3366
+  - slot_was_set:
+    - requested_slot: null
+  - active_loop: null
+  - action: utter_resea_phy_slots
+  - action: action_reset_all_slots

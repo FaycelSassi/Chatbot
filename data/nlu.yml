@@ -44,12 +44,6 @@ nlu:
     - don't like that
     - no way
     - not really
-- intent: ask_time
-  examples: |
-    - What time is it
-    - What's the time
-    - tell me the time
-    - give me the time
 - intent: bot_challenge
   examples: |
     - are you a bot?
@@ -86,3 +80,27 @@ nlu:
     - i'd like to add a new definition
     - i want to add a definition
     - can i add a definition
+
+- intent: ask_for_reseau_phy
+  examples: |
+    - i want some infos 
+    - give me infos
+    - i'd like to know about a site
+    - i want information about a site
+    - can i ask about site
+    - I'm interested in the informations of a site
+
+- intent: inform_about_reseau_phy
+  examples: |
+    - what's the infos for [HBIRA_GSM](site)
+    - give me all info for [MHERZA_EST_GSM](site)
+    - give me all information about [MHERZA_EST_GSM](site)
+    - [MHERZA_EST_GSM](site)
+    - [hi](site)
+    - i want [HBIRA_GSM](site)
+    - [MAH3321](site)
+    - [33211](site)
+    - [33661](site)
+    - what's [HBIRA_GSM](site)
+    -[MAH3366](site)
+
