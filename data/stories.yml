@@ -8,8 +8,6 @@ stories:
   - intent: greet
   - action: utter_greet
   - intent: ask_help_definition
-  - action: utter_help_definition
-  - intent: give_definition
   - action: def_form
   - active_loop: def_form
   - slot_was_set:
@@ -23,17 +21,36 @@ stories:
   - slot_was_set:
     - requested_slot: null
   - active_loop: null
-  - action: validate_def_form
   - action: utter_another_def
+  - action: action_reset_all_slots
   
 - story: another_definition_path_1
   steps: 
   - action: utter_another_def
   - intent: affirm
-  - action: utter_help_definition
-  - intent: ask_definition
-  - action: validate_def_form
+  - intent: ask_help_definition
+  - action: def_form
+  - active_loop: def_form
+  - slot_was_set:
+    - requested_slot: definition
+  - slot_was_set:
+    - definition: tcp
+  - slot_was_set:
+    - definition: FAJ 121 1447
+  - slot_was_set:
+    - definition: Uplink Adaptive Retransmission Enhancement
+  - slot_was_set:
+    - requested_slot: null
+  - active_loop: null
+  - action: utter_another_def 
+  - action: action_reset_all_slots
   
+- story: another_definition_path _2
+  steps: 
+  - action: utter_another_def
+  - intent: deny
+  - action: utter_happy
+
 - story: add_definition_path 
   steps: 
   - intent: greet
@@ -73,51 +90,6 @@ stories:
   - action: action_reset_all_slots
   - action: utter_add_another_def
 
-
-  
-- story: another_definition_path _2
-  steps: 
-  - action: utter_another_def
-  - intent: deny
-  - action: utter_happy
-
-
-
-- story: interactive_story_1
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: give_definition
-  - action: def_form
-  - action: validate_def_form
-  - action: utter_another_def
-
-- story: interactive_story_2
-  steps:
-  - intent: greet
-  - action: utter_greet
-  - intent: give_definition
-  - action: def_form
-  - active_loop: def_form
-  - slot_was_set:
-    - requested_slot: definition
-  - slot_was_set:
-    - definition: i need a def
-  - slot_was_set:
-    - requested_slot: null
-  - active_loop: null
-  - action: validate_def_form
-  - action: utter_another_def
-  - intent: give_definition
-  - action: def_form
-  - active_loop: def_form
-  - slot_was_set:
-    - requested_slot: null
-  - active_loop: null
-  - action: validate_def_form
-  - action: utter_another_def
-  - intent: deny
-  - action: utter_happy
 
 - story: interactive_story_1
   steps:

@@ -15,7 +15,7 @@ rules:
 
 - rule: Activate def form
   steps:
-  - intent: give_definition
+  - intent: ask_help_definition
   - action: def_form
   - active_loop: def_form
 
@@ -27,8 +27,8 @@ rules:
   - active_loop: null
   - slot_was_set:
     - requested_slot: null
-  - action: validate_def_form
   - action: utter_another_def
+  - action: action_reset_all_slots
 
 
 - rule: Activate form 2

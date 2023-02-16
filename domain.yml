@@ -76,16 +76,12 @@ actions:
 - utter_slots_values
 - utter_add_def_1
 - utter_happy
-- utter_help_definition
 - utter_resea_phy_slots
 - validate_reseau_phy_form
-- utter_submit
 
 responses:
   utter_greet:
   - text: Hey! How can i help you?
-  utter_help_definition:
-  - text: what's the term u need the defintion for
   utter_did_that_help:
   - text: Did that help you?
   utter_add_def_1:

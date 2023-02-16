@@ -1,0 +1,44 @@
+[
+  {
+    "tag_name": "entity",
+    "ids_to_tags": {
+      "1": "B-definition",
+      "2": "I-definition",
+      "3": "L-definition",
+      "4": "U-definition",
+      "5": "B-full_def",
+      "6": "I-full_def",
+      "7": "L-full_def",
+      "8": "U-full_def",
+      "9": "B-fullname",
+      "10": "I-fullname",
+      "11": "L-fullname",
+      "12": "U-fullname",
+      "13": "B-site",
+      "14": "I-site",
+      "15": "L-site",
+      "16": "U-site",
+      "0": "O"
+    },
+    "tags_to_ids": {
+      "B-definition": 1,
+      "I-definition": 2,
+      "L-definition": 3,
+      "U-definition": 4,
+      "B-full_def": 5,
+      "I-full_def": 6,
+      "L-full_def": 7,
+      "U-full_def": 8,
+      "B-fullname": 9,
+      "I-fullname": 10,
+      "L-fullname": 11,
+      "U-fullname": 12,
+      "B-site": 13,
+      "I-site": 14,
+      "L-site": 15,
+      "U-site": 16,
+      "O": 0
+    },
+    "num_tags": 17
+  }
+]

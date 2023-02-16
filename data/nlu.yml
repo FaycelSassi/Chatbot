@@ -70,16 +70,25 @@ nlu:
 
 - intent: ask_help_definition
   examples: |
+    - i need the definition for
+    - what's included in the feature 
     - i need a definition
+    - i need informations of the feature
+    - i want infos on the feature 
     - can you define something
     - give me the definition for
     - i need a def
+    - what's the feature 
+    - what's the new feature
 
 - intent: ask_add_def
   examples: |
     - i'd like to add a new definition
     - i want to add a definition
     - can i add a definition
+    - i'd like to add a new feature
+    - i want to add a feature
+    - can i add a feature
 
 - intent: ask_for_reseau_phy
   examples: |
@@ -96,7 +105,6 @@ nlu:
     - give me all info for [MHERZA_EST_GSM](site)
     - give me all information about [MHERZA_EST_GSM](site)
     - [MHERZA_EST_GSM](site)
-    - [hi](site)
     - i want [HBIRA_GSM](site)
     - [MAH3321](site)
     - [33211](site)
