@@ -115,3 +115,10 @@ stories:
   - active_loop: null
   - action: utter_resea_phy_slots
   - action: action_reset_all_slots
+
+- story: add_physical_network 
+  steps: 
+  - intent: greet
+  - action: utter_greet
+  - intent: add_phy_net
+  - action: utter_adding_phy_net

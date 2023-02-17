@@ -13,10 +13,15 @@ intents:
 - greet
 - inform_about_reseau_phy
 - ask_for_reseau_phy
+- add_phy_net
 
 entities:
  - definition
  - site
+ - fullname
+ - abbrv
+ - full_def
+ - others
 
 forms:
   #form for asking for a defintion
@@ -28,6 +33,8 @@ forms:
     required_slots:
     - fullname
     - full_def
+    - abbrv
+    - others
   reseau_phy_form:
     required_slots:
       - site
@@ -45,15 +52,36 @@ slots:
     type: text
     influence_conversation: true
     mappings:
-      - type: from_text
+      - type: from_entity
+      entity: full_def
         conditions:
          - active_loop: full_def_form
            requested_slot: fullname
+  others:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+      entity: others
+        conditions:
+         - active_loop: full_def_form
+           requested_slot: others
+  abbrv:
+    type: text
+    influence_conversation: true
+    mappings:
+      - type: from_entity
+      entity: abbrv
+        conditions:
+         - active_loop: full_def_form
+           requested_slot: abbrv
+           
   full_def:
     type: text
     influence_conversation: true
     mappings:
-      - type: from_text
+      - type: from_entity
+      entity: full_def
         conditions:
          - active_loop: full_def_form
            requested_slot: full_def
@@ -106,6 +134,8 @@ responses:
   - text: that was the info for {site}.
   utter_ask_site:
   - text: What's the site you're asking about?
+  utter_adding_phy_net:
+  - text: To add a physical network. Please fill this http://localhost:4949
 
 config:
   store_entities_as_slots: true

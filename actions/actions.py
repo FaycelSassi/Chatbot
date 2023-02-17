@@ -70,25 +70,25 @@ class ActionAddDefinition(Action):
         print("in")
         fullname = tracker.get_slot("fullname")
         full_def= tracker.get_slot("full_def")
-        x = fullname.split("#")
-        abbrv=""
-        if len(x)==1:
-            abbrv=x[0]
-        else:
-            for i in (x):
-                abbrv+=i[0]
-        new_document = {
-            "abbrv": abbrv.upper(),
-            "fullname": fullname.upper(),
-            "definition": full_def,
-            "others": ""
-        }
-        result = collection.insert_one(new_document)
-        if(result.inserted_id!= None):
-            dispatcher.utter_message("definition added")
-        else:
-            dispatcher.utter_message("there was a problem with the addition please try again")
-        return []
+        abbrv= tracker.get_slot("abbrv")
+        others= tracker.get_slot("others")
+        document = collection.find_one({"$or": [{"abbrv": fullname.upper()},
+                                       {"fullname": abbrv.upper()}]})
+        if document==None :
+            new_document = {
+                "abbrv": abbrv.upper(),
+                "fullname": fullname.upper(),
+                "definition": full_def.upper(),
+                "others": others.upper()
+            }
+            result = collection.insert_one(new_document)
+            if(result.inserted_id!= None):
+                dispatcher.utter_message("definition added")
+            else:
+                dispatcher.utter_message("there was a problem with the addition please try again")
+            return []
+        else :
+            dispatcher.utter_message("this feature already exists")
 
 #the reset all slots action
 class ActionResetAllSlots(Action):
@@ -117,11 +117,19 @@ class ValidateReseauPhyForm(FormValidationAction):
             slot_value=slot_value.replace(" ", "")
             print(slot_value)
             aff="Sorry, reseau is yet to be added"
-            document = collection.find_one({"$or": [{"Site": slot_value.upper()},
-                                        {"Site_Code": slot_value.upper()},{"Identifiant": slot_value.upper()}]})
-            if document!=None :
-                aff=document['Site']+" : "+ document['Identifiant']+" : "+ document['Site_Code']+" : "+ document['LAC']+" : "+ document['Bande de fréquences']
-                print(aff)
+            documents = collection.find({"$or": [{"Site": slot_value.upper()},
+                                        {"Site_Code": slot_value.upper()},{"Identifiant": slot_value.upper()},{"BSC": slot_value.upper()},{"Bande de fréquences": slot_value.upper()},{"Gouvernorat": slot_value.upper()}
+                                        ,{"HBA(m)": slot_value.upper()},{"LAC": slot_value.upper()},{"Latitude": slot_value.upper()}
+                                        ,{"Longitude": slot_value.upper()},{"Puissance isotrope rayonnée équivalente (PIRE) dans chaque secteur": slot_value.upper()},{"Secteur": slot_value.upper()}
+                                        ,{"Type d'Installation": slot_value.upper()},{"azimut du rayonnement maximum dans chaque secteur": slot_value.upper()}]})
+            print(documents)
+            if documents!=None :
+                i = 0
+                aff=""
+                for document in documents: 
+                    i+=1
+                    aff+=str(i)+" - "+document['Site']+" : "+ document['Identifiant']+" : "+ document['Site_Code']+" : "+ document['LAC']+" : "+ document['Bande de fréquences']+"\n"
+            print(aff)
             dispatcher.utter_message(aff)
             return {"site": slot_value}
         else:

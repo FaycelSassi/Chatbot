@@ -62,12 +62,14 @@ nlu:
 #the intent to add a definition to the db
 - intent: give_full_definition
   examples: |
-    - [nli](fullname)
+    - [Uplink Adaptive Retransmission Enhancement](fullname)
     - [wifi](fullname)
     - [is to help add a definition](full_def)
-    - [is a network device for tech](full_def)
+    - [t replaces some non-adaptive retransmissions with adaptive retransmissions in uplink. This is done to reduce the fragmentation rate of the uplink spectrum. With reduced fragmentation, the uplink spectrum can be used more efficiently.](full_def)
+    - [FAJ1211447](abbrv)
+    - [file:///C:/Users/fayce/Downloads/Documents/10_10948-lza7016014_1-v1uen_gn7z.pdf](others)
    
-
+#the intent to ask about a feature or a definition
 - intent: ask_help_definition
   examples: |
     - i need the definition for
@@ -80,7 +82,7 @@ nlu:
     - i need a def
     - what's the feature 
     - what's the new feature
-
+#the intent to add a feature or a definition
 - intent: ask_add_def
   examples: |
     - i'd like to add a new definition
@@ -89,7 +91,7 @@ nlu:
     - i'd like to add a new feature
     - i want to add a feature
     - can i add a feature
-
+#Questions about  reseau phy by ID, name, BSC, fequency, LAC , Latitude , Longitude, HBA, Type d'Installation, azimut du rayonnement maximum dans chaque secteur
 - intent: ask_for_reseau_phy
   examples: |
     - i want some infos 
@@ -97,8 +99,15 @@ nlu:
     - i'd like to know about a site
     - i want information about a site
     - can i ask about site
+    - Give me all sites with this langtitude 
+    - Give me all sites with this langtitude 
+    - what are the sites with azimut du rayonnement
+    - sites with gouvernorat
+    - sites with frequency
+    - sites with LAC
+    - sites with HBA
     - I'm interested in the informations of a site
-
+#Questions about  reseau phy by ID, name, BSC, fequency, LAC , Latitude , Longitude, HBA, Type d'Installation, azimut du rayonnement maximum dans chaque secteur, sectuers and gouvernorat
 - intent: inform_about_reseau_phy
   examples: |
     - what's the infos for [HBIRA_GSM](site)
@@ -111,4 +120,21 @@ nlu:
     - [33661](site)
     - what's [HBIRA_GSM](site)
     -[MAH3366](site)
+    -[GSM900](site)
+    -[47](site)
+    -[33MHEGA](site)
+    -[Pylone](site)
+    -[170](site)
+    -[35,1704](site)
+    -[10,2292](site)
+    -[27,5](site)
+    -[Mahdia](site)
+#adding a new réseau physique
+- intent: add_phy_net
+  examples: |
+    - can i add a physical network 
+    - i'd like to add a physical network
+    - add a physical network
+    
+    
 

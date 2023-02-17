@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add a physical network</title>
+</head>
+<body>
+    <form method="post" action="{{ url_for('submit') }}">
+        <label for="BSC">BSC:</label>
+        <input type="text" id="BSC" name="BSC" required><br>
+
+        <label for="fréquences">Bande de fréquences:</label>
+        <input type="text" id="fréquences" name="fréquences" required><br>
+
+        <label for="Gouvernorat">Gouvernorat:</label>
+        <input type="text" id="Gouvernorat" name="Gouvernorat" required><br>
+
+        <label for="HBA">HBA(m):</label>
+        <input type="text" id="HBA" name="HBA" required><br>
+
+        <label for="Identifiant">Identifiant:</label>
+        <input type="text" id="Identifiant" name="Identifiant" required><br>
+
+        <label for="LAC">LAC:</label>
+        <input type="text" id="LAC" name="LAC" required><br>
+
+        <label for="Latitude">Latitude:</label>
+        <input type="text" id="Latitude" name="Latitude" required><br>
+
+        <label for="Longitude">Longitude:</label>
+        <input type="text" id="Longitude" name="Longitude" required><br>
+
+        <label for="antennes">Nombre d'antennes :</label>
+        <input type="text" id="antennes" name="antennes" required><br>
+
+        <label for="cellules">Nombre de cellules:</label>
+        <input type="text" id="cellules" name="cellules" required><br>
+        <label for="porteuses">Nombre de porteuses:</label>
+        <input type="text" id="porteuses" name="porteuses" required><br>
+        <label for="PIRE">Puissance isotrope rayonnée équivalente (PIRE) dans chaque secteur:</label>
+        <input type="text" id="PIRE" name="PIRE" required><br>
+        <label for="Secteur">Secteur:</label>
+        <input type="text" id="Secteur" name="Secteur" required><br>
+        <label for="Site">Site:</label>
+        <input type="text" id="Site" name="Site" required><br>
+        <label for="Site_Code">Site_Code:</label>
+        <input type="text" id="Site_Code" name="Site_Code" required><br>
+        <label for="Tits">Tits mécanques et électriques de chaque antenne:</label>
+        <input type="text" id="Tits" name="Tits" required><br>
+        <label for="Type">Type d'Installation:</label>
+        <input type="text" id="Type" name="Type" required><br>
+        <label for="azimut">azimut du rayonnement maximum dans chaque secteur: </label>
+        <input type="text" id="azimut" name="azimut" required><br>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
