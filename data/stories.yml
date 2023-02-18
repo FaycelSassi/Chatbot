@@ -56,17 +56,19 @@ stories:
   - intent: greet
   - action: utter_greet
   - intent: ask_add_def
-  - action: utter_ask_term
   - action: full_def_form
   - active_loop: full_def_form
+  - slot_was_set:
+    - requested_slot: abbrv 
   - slot_was_set:
     - requested_slot: fullname 
   - slot_was_set:
     - requested_slot: full_def
   - slot_was_set:
-    - requested_slot: null
+    - requested_slot: others
   - active_loop: null
-  - action: action_add_def
+  - slot_was_set:
+    - requested_slot: null
   - action: utter_slots_values
   - action: action_reset_all_slots
   - action: utter_add_another_def
@@ -79,13 +81,16 @@ stories:
   - action: full_def_form
   - active_loop: full_def_form
   - slot_was_set:
+    - requested_slot: abbrv 
+  - slot_was_set:
     - requested_slot: fullname 
   - slot_was_set:
     - requested_slot: full_def
   - slot_was_set:
-    - requested_slot: null
+    - requested_slot: others
   - active_loop: null
-  - action: action_add_def
+  - slot_was_set:
+    - requested_slot: null
   - action: utter_slots_values
   - action: action_reset_all_slots
   - action: utter_add_another_def

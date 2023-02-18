@@ -58,37 +58,107 @@ def clean_name(name):
         return "".join([c for c in name if c.isalpha()])
 
 #the add definition action
-class ActionAddDefinition(Action):
+class ActionAddDefinition(FormValidationAction):
     def name(self) -> Text:
-            return "action_add_def"
+            return "validate_full_def_form"
+    fullname=""
+    abbrv=""
+    full_def=""
+    others=""
+    def validate_fullname(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `fullname` value."""
+        print(slot_value)
+        aff="Sorry, definition is already added"
+        if slot_value == None:
+            dispatcher.utter_message("Can you please write the term that you'd like to add")
+            return {"fullname": None}
+        else:
+            # Get the collection
+            collection = db["chap1"]
+            # Find all documents in the collection
+            document = collection.find_one([{"fullname": slot_value.upper()}])
+            if document!=None :
+                dispatcher.utter_message(aff)
+                return {"fullname": slot_value}
+            else: 
+                self.fullname=slot_value
+    def validate_abbrv(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `abbrv` value."""
+        print(slot_value)
+        aff="Sorry, definition is already added"
+        if slot_value == None:
+            dispatcher.utter_message("Can you please write the term that you'd like to add")
+            return {"abbrv": None}
+        else:
+            # Get the collection
+            collection = db["chap1"]
+            # Find all documents in the collection
+            document = collection.find_one([{"abbrv": slot_value.upper()}])
+            if document!=None :
+                dispatcher.utter_message(aff)
+                return {"abbrv": slot_value}
+            else: 
+                self.abbrv=slot_value
+    def validate_full_def(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `full_def` value."""
+        print(slot_value)
+        aff="Sorry, definition is already added"
+        if slot_value == None:
+            dispatcher.utter_message("Can you please write the term that you'd like to add")
+            return {"full_def": None}
+        else:
+            self.full_def=slot_value
+            return {"full_def": slot_value}
             
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        # Get the collection
-        collection = db["chap1"]
-        print("in")
-        fullname = tracker.get_slot("fullname")
-        full_def= tracker.get_slot("full_def")
-        abbrv= tracker.get_slot("abbrv")
-        others= tracker.get_slot("others")
-        document = collection.find_one({"$or": [{"abbrv": fullname.upper()},
-                                       {"fullname": abbrv.upper()}]})
-        if document==None :
+    def validate_others(
+        self,
+        slot_value: Any,
+        dispatcher: CollectingDispatcher,
+        tracker: Tracker,
+        domain: DomainDict,
+    ) -> Dict[Text, Any]:
+        """Validate `others` value."""
+        print(slot_value)
+        if slot_value == None:
+            collection = db["chap1"]
+            dispatcher.utter_message("Can you please write the term that you'd like to add")
+            return {"others": None}
+        else:
+            # Get the collection
+            collection = db["chap1"]
             new_document = {
-                "abbrv": abbrv.upper(),
-                "fullname": fullname.upper(),
-                "definition": full_def.upper(),
-                "others": others.upper()
+                "abbrv": self.abbrv.upper(),
+                "fullname": self.fullname.upper(),
+                "definition": self.full_def.upper(),
+                "others": slot_value.upper()
             }
             result = collection.insert_one(new_document)
             if(result.inserted_id!= None):
                 dispatcher.utter_message("definition added")
             else:
                 dispatcher.utter_message("there was a problem with the addition please try again")
-            return []
-        else :
-            dispatcher.utter_message("this feature already exists")
+                return {"others": slot_value}
+            
+
+
 
 #the reset all slots action
 class ActionResetAllSlots(Action):

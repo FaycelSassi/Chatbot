@@ -33,6 +33,7 @@ rules:
 
 - rule: Activate form 2
   steps:
+  - intent: ask_add_def
   - action: full_def_form
   - active_loop: full_def_form
 
@@ -44,7 +45,6 @@ rules:
   - active_loop: null
   - slot_was_set:
     - requested_slot: null
-  - action: action_add_def
   - action: utter_slots_values
   - action: action_reset_all_slots
   - action: utter_add_another_def

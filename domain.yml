@@ -52,39 +52,38 @@ slots:
     type: text
     influence_conversation: true
     mappings:
-      - type: from_entity
-      entity: full_def
-        conditions:
-         - active_loop: full_def_form
-           requested_slot: fullname
+    - type: from_entity
+      entity: fullname
+      conditions:
+      - active_loop: full_def_form
+        requested_slot: fullname
   others:
     type: text
     influence_conversation: true
     mappings:
-      - type: from_entity
+    - type: from_entity
       entity: others
-        conditions:
-         - active_loop: full_def_form
-           requested_slot: others
+      conditions:
+      - active_loop: full_def_form
+        requested_slot: others
   abbrv:
     type: text
     influence_conversation: true
     mappings:
-      - type: from_entity
+    - type: from_entity
       entity: abbrv
-        conditions:
-         - active_loop: full_def_form
-           requested_slot: abbrv
-           
+      conditions:
+      - active_loop: full_def_form
+        requested_slot: abbrv     
   full_def:
     type: text
     influence_conversation: true
     mappings:
-      - type: from_entity
+    - type: from_entity
       entity: full_def
-        conditions:
-         - active_loop: full_def_form
-           requested_slot: full_def
+      conditions:
+      - active_loop: full_def_form
+        requested_slot: full_def
   site:
     type: text
     influence_conversation: true
@@ -95,7 +94,6 @@ slots:
 
 actions:
 - validate_def_form
-- action_add_def
 - action_reset_all_slots
 - utter_another_def
 - utter_did_that_help
@@ -106,6 +104,7 @@ actions:
 - utter_happy
 - utter_resea_phy_slots
 - validate_reseau_phy_form
+- validate_full_def_form
 
 responses:
   utter_greet:

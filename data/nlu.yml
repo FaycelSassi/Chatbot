@@ -62,12 +62,18 @@ nlu:
 #the intent to add a definition to the db
 - intent: give_full_definition
   examples: |
-    - [Uplink Adaptive Retransmission Enhancement](fullname)
     - [wifi](fullname)
     - [is to help add a definition](full_def)
-    - [t replaces some non-adaptive retransmissions with adaptive retransmissions in uplink. This is done to reduce the fragmentation rate of the uplink spectrum. With reduced fragmentation, the uplink spectrum can be used more efficiently.](full_def)
-    - [FAJ1211447](abbrv)
+    - [FAJ1211447](abbrv) or also called [Uplink Adaptive Retransmission Enhancement](fullname) [it replaces some non-adaptive retransmissions with adaptive retransmissions in uplink. This is done to reduce the fragmentation rate of the uplink spectrum. With reduced fragmentation, the uplink spectrum can be used more efficiently.](full_def)
     - [file:///C:/Users/fayce/Downloads/Documents/10_10948-lza7016014_1-v1uen_gn7z.pdf](others)
+    - [faj1214796](abbrv)
+    - [advanced subscriber group handling performance package](fullname)
+    - [faj1214797](abbrv)
+    - [faj1214728](abbrv)
+    - [assisted time holdover](fullname)
+    - [is a network synchronization feature. It extends the time holdover period when the primary GNSS time synchronization source fails](full_def)
+    - [10_10948-lza7016014_1-v1uen_gn7z.pdf](others)
+
    
 #the intent to ask about a feature or a definition
 - intent: ask_help_definition

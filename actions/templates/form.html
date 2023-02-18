@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+        <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Add a physical network</title>
+</head>
+<body style="background-color: #b4aee8">
+    <center> 
+    <h1>
+        Adding a new site
+    </h1>
+    <div style="border: thick black solid ; width: fit-content; background-color: aliceblue; ">
+    <form method="post" action="{{ url_for('submit') }}">
+        <label for="BSC">BSC:</label>
+        <input style="padding:5px" class="form-control mb-6"type="text" id="BSC" name="BSC" required><br>
+
+        <label for="fréquences">Bande de fréquences:</label>
+        <input  style="padding:5px" class="form-control mb-6" style="padding:5px" class="form-control mb-6"type="text" id="fréquences" name="fréquences" required><br>
+
+        <label for="Gouvernorat">Gouvernorat:</label>
+        <input  style="padding:5px" class="form-control mb-6"type="text" id="Gouvernorat" name="Gouvernorat" required><br>
+
+        <label for="HBA">HBA(m):</label>
+        <input  style="padding:5px" class="form-control mb-6"type="text" id="HBA" name="HBA" required><br>
+
+        <label for="Identifiant">Identifiant:</label>
+        <input  style="padding:5px" class="form-control mb-6"type="text" id="Identifiant" name="Identifiant" required><br>
+
+        <label for="LAC">LAC:</label>
+        <input  style="padding:5px" class="form-control mb-6"type="text" id="LAC" name="LAC" required><br>
+
+        <label for="Latitude">Latitude:</label>
+        <input  style="padding:5px" class="form-control mb-6"type="text" id="Latitude" name="Latitude" required><br>
+
+        <label for="Longitude">Longitude:</label>
+        <input  style="padding:5px" class="form-control mb-6"type="text" id="Longitude" name="Longitude" required><br>
+
+        <label for="antennes">Nombre d'antennes :</label>
+        <input  style="padding:5px" class="form-control mb-6"type="text" id="antennes" name="antennes" required><br>
+
+        <label for="cellules">Nombre de cellules:</label>
+        <input  style="padding:5px" class="form-control mb-6"type="text" id="cellules" name="cellules" required><br>
+        <label for="porteuses">Nombre de porteuses:</label>
+        <input  style="padding:5px" class="form-control mb-6"type="text" id="porteuses" name="porteuses" required><br>
+        <label for="PIRE">Puissance isotrope rayonnée équivalente (PIRE) dans chaque secteur:</label>
+        <input  style="padding:5px" class="form-control mb-6"type="text" id="PIRE" name="PIRE" required><br>
+        <label for="Secteur">Secteur:</label>
+        <input  style="padding:5px" class="form-control mb-6"type="text" id="Secteur" name="Secteur" required><br>
+        <label for="Site">Site:</label>
+        <input  style="padding:5px" class="form-control mb-6"type="text" id="Site" name="Site" required><br>
+        <label for="Site_Code">Site_Code:</label>
+        <input  style="padding:5px" class="form-control mb-6"type="text" id="Site_Code" name="Site_Code" required><br>
+        <label for="Tits">Tits mécanques et électriques de chaque antenne:</label>
+        <input  style="padding:5px" class="form-control mb-6"type="text" id="Tits" name="Tits" required><br>
+        <label for="Type">Type d'Installation:</label>
+        <input  style="padding:5px" class="form-control mb-6"type="text" id="Type" name="Type" required><br>
+        <label for="azimut">azimut du rayonnement maximum dans chaque secteur: </label>
+        <input  style="padding:5px" class="form-control mb-6"type="text" id="azimut" name="azimut" required><br>
+        <button type="submit" class="btn btn-primary btn-block mb-3">Submit</button>
+    </form>
+</div>
+    </center>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>
