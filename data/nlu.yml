@@ -57,24 +57,12 @@ nlu:
     - what is [tcp](definition)
     - what's included in the feature [nir](definition)
     - give me the definition of the feature [kpi](definition)
+    - [uplink](definition)
+    - [R503](definition)
+    - [ASGH](definition)
     - what is the [FAJ 121 1447](definition)
-    - what does [Uplink Adaptive Retransmission Enhancement] (definition) do
-#the intent to add a definition to the db
-- intent: give_full_definition
-  examples: |
-    - [wifi](fullname)
-    - [is to help add a definition](full_def)
-    - [FAJ1211447](abbrv) or also called [Uplink Adaptive Retransmission Enhancement](fullname) [it replaces some non-adaptive retransmissions with adaptive retransmissions in uplink. This is done to reduce the fragmentation rate of the uplink spectrum. With reduced fragmentation, the uplink spectrum can be used more efficiently.](full_def)
-    - [file:///C:/Users/fayce/Downloads/Documents/10_10948-lza7016014_1-v1uen_gn7z.pdf](others)
-    - [faj1214796](abbrv)
-    - [advanced subscriber group handling performance package](fullname)
-    - [faj1214797](abbrv)
-    - [faj1214728](abbrv)
-    - [assisted time holdover](fullname)
-    - [is a network synchronization feature. It extends the time holdover period when the primary GNSS time synchronization source fails](full_def)
-    - [10_10948-lza7016014_1-v1uen_gn7z.pdf](others)
-
-   
+    - [Uplink Adaptive Retransmission Enhancement] (definition) do
+    - [R503](definition)
 #the intent to ask about a feature or a definition
 - intent: ask_help_definition
   examples: |
@@ -87,16 +75,13 @@ nlu:
     - give me the definition for
     - i need a def
     - what's the feature 
+    - what feature have 
+    - features containing
+    - features including
+    - features with 
     - what's the new feature
-#the intent to add a feature or a definition
-- intent: ask_add_def
-  examples: |
-    - i'd like to add a new definition
-    - i want to add a definition
-    - can i add a definition
-    - i'd like to add a new feature
-    - i want to add a feature
-    - can i add a feature
+    - i need a feature
+
 #Questions about  reseau phy by ID, name, BSC, fequency, LAC , Latitude , Longitude, HBA, Type d'Installation, azimut du rayonnement maximum dans chaque secteur
 - intent: ask_for_reseau_phy
   examples: |
@@ -141,6 +126,15 @@ nlu:
     - can i add a physical network 
     - i'd like to add a physical network
     - add a physical network
+    - i want to physical network
+
+#adding a new réseau physique
+- intent: ask_add_feature
+  examples: |
+    - can i add a feature 
+    - i'd like to add a feature
+    - add a feature
+    - i want to add a feature
     
     
 

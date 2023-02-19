@@ -18,23 +18,11 @@ intents:
 entities:
  - definition
  - site
- - fullname
- - abbrv
- - full_def
- - others
-
 forms:
   #form for asking for a defintion
   def_form:
     required_slots:
     - definition
-  #form for adding a definition
-  full_def_form:
-    required_slots:
-    - fullname
-    - full_def
-    - abbrv
-    - others
   reseau_phy_form:
     required_slots:
       - site
@@ -45,45 +33,6 @@ slots:
     mappings:
     - type: from_entity
       entity: definition
-      conditions:
-      - active_loop: def_form
-        requested_slot: definition
-  fullname:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: from_entity
-      entity: fullname
-      conditions:
-      - active_loop: full_def_form
-        requested_slot: fullname
-  others:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: from_entity
-      entity: others
-      conditions:
-      - active_loop: full_def_form
-        requested_slot: others
-  abbrv:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: from_entity
-      entity: abbrv
-      conditions:
-      - active_loop: full_def_form
-        requested_slot: abbrv     
-  full_def:
-    type: text
-    influence_conversation: true
-    mappings:
-    - type: from_entity
-      entity: full_def
-      conditions:
-      - active_loop: full_def_form
-        requested_slot: full_def
   site:
     type: text
     influence_conversation: true
@@ -99,24 +48,20 @@ actions:
 - utter_did_that_help
 - utter_def_added
 - utter_greet
-- utter_slots_values
-- utter_add_def_1
+- utter_ask_def
 - utter_happy
 - utter_resea_phy_slots
 - validate_reseau_phy_form
-- validate_full_def_form
 
 responses:
   utter_greet:
   - text: Hey! How can i help you?
   utter_did_that_help:
   - text: Did that help you?
-  utter_add_def_1:
-  - text: what's the term you'd like to add?
+  utter_ask_def:
+  - text: what's the term you'd like to ask about?
   utter_another_def:
   - text: want an another definition?
-  utter_add_another_def:
-  - text: want to add an another definition?
   utter_happy:
   - text: Great, hope that helped!
   utter_goodbye:
@@ -127,17 +72,15 @@ responses:
   - text: Definition added.
   utter_ask_term:
   - text: what's the term you'd like to add.
-  utter_slots_values:
-  - text: I will remember that new definition for {fullname} is :{full_def}!
   utter_resea_phy_slots:
   - text: that was the info for {site}.
   utter_ask_site:
   - text: What's the site you're asking about?
   utter_adding_phy_net:
   - text: To add a physical network. Please fill this http://localhost:4949
+utter_adding_feature:
+  - text: To add a feature. Please fill this http://localhost:4949/feature
 
-config:
-  store_entities_as_slots: true
 session_config:
   session_expiration_time: 60
   carry_over_slots_to_new_session: true

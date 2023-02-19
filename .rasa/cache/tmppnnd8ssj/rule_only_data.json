@@ -1,8 +1,0 @@
-{
-  "rule_only_slots": [],
-  "rule_only_loops": [
-    "reseau_phy_form",
-    "def_form",
-    "full_def_form"
-  ]
-}

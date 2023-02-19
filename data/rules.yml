@@ -30,25 +30,6 @@ rules:
   - action: utter_another_def
   - action: action_reset_all_slots
 
-
-- rule: Activate form 2
-  steps:
-  - intent: ask_add_def
-  - action: full_def_form
-  - active_loop: full_def_form
-
-- rule: Submit form 2
-  condition:
-  - active_loop: full_def_form
-  steps:
-  - action: full_def_form
-  - active_loop: null
-  - slot_was_set:
-    - requested_slot: null
-  - action: utter_slots_values
-  - action: action_reset_all_slots
-  - action: utter_add_another_def
-
 - rule: Activate reseau phy Form
   steps:
   - intent: ask_for_reseau_phy

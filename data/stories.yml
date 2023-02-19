@@ -15,12 +15,16 @@ stories:
   - slot_was_set:
     - definition: tcp
   - slot_was_set:
+    - definition: uplink
+  - slot_was_set:
+    - definition: r503
+  - slot_was_set:
     - definition: FAJ 121 1447
   - slot_was_set:
     - definition: Uplink Adaptive Retransmission Enhancement
+  - active_loop: null
   - slot_was_set:
     - requested_slot: null
-  - active_loop: null
   - action: utter_another_def
   - action: action_reset_all_slots
   
@@ -28,7 +32,7 @@ stories:
   steps: 
   - action: utter_another_def
   - intent: affirm
-  - intent: ask_help_definition
+  - action: utter_ask_def
   - action: def_form
   - active_loop: def_form
   - slot_was_set:
@@ -39,9 +43,9 @@ stories:
     - definition: FAJ 121 1447
   - slot_was_set:
     - definition: Uplink Adaptive Retransmission Enhancement
+  - active_loop: null
   - slot_was_set:
     - requested_slot: null
-  - active_loop: null
   - action: utter_another_def 
   - action: action_reset_all_slots
   
@@ -50,50 +54,6 @@ stories:
   - action: utter_another_def
   - intent: deny
   - action: utter_happy
-
-- story: add_definition_path 
-  steps: 
-  - intent: greet
-  - action: utter_greet
-  - intent: ask_add_def
-  - action: full_def_form
-  - active_loop: full_def_form
-  - slot_was_set:
-    - requested_slot: abbrv 
-  - slot_was_set:
-    - requested_slot: fullname 
-  - slot_was_set:
-    - requested_slot: full_def
-  - slot_was_set:
-    - requested_slot: others
-  - active_loop: null
-  - slot_was_set:
-    - requested_slot: null
-  - action: utter_slots_values
-  - action: action_reset_all_slots
-  - action: utter_add_another_def
-
-- story: add_another_definition_path_1
-  steps: 
-  - action: utter_add_another_def
-  - intent: affirm 
-  - action: utter_ask_term
-  - action: full_def_form
-  - active_loop: full_def_form
-  - slot_was_set:
-    - requested_slot: abbrv 
-  - slot_was_set:
-    - requested_slot: fullname 
-  - slot_was_set:
-    - requested_slot: full_def
-  - slot_was_set:
-    - requested_slot: others
-  - active_loop: null
-  - slot_was_set:
-    - requested_slot: null
-  - action: utter_slots_values
-  - action: action_reset_all_slots
-  - action: utter_add_another_def
 
 
 - story: interactive_story_1
