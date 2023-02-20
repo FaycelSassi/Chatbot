@@ -8,7 +8,6 @@ intents:
 - give_full_definition
 - bot_challenge
 - deny
-- give_definition
 - goodbye
 - greet
 - inform_about_reseau_phy
@@ -16,13 +15,13 @@ intents:
 - add_phy_net
 
 entities:
- - definition
+#  - definition
  - site
 forms:
   #form for asking for a defintion
-  def_form:
-    required_slots:
-    - definition
+  # def_form:
+  #   required_slots:
+  #   - definition
   reseau_phy_form:
     required_slots:
       - site
@@ -31,8 +30,8 @@ slots:
     type: text
     influence_conversation: true
     mappings:
-    - type: from_entity
-      entity: definition
+    - type: from_text
+      intent: ask_help_definition
   site:
     type: text
     influence_conversation: true
@@ -42,7 +41,7 @@ slots:
 
 
 actions:
-- validate_def_form
+- Action_Validate_feature
 - action_reset_all_slots
 - utter_another_def
 - utter_did_that_help

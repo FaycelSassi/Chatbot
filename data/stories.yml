@@ -8,46 +8,17 @@ stories:
   - intent: greet
   - action: utter_greet
   - intent: ask_help_definition
-  - action: def_form
-  - active_loop: def_form
-  - slot_was_set:
-    - requested_slot: definition
-  - slot_was_set:
-    - definition: tcp
-  - slot_was_set:
-    - definition: uplink
-  - slot_was_set:
-    - definition: r503
-  - slot_was_set:
-    - definition: FAJ 121 1447
-  - slot_was_set:
-    - definition: Uplink Adaptive Retransmission Enhancement
-  - active_loop: null
-  - slot_was_set:
-    - requested_slot: null
+  - action: Action_Validate_feature
   - action: utter_another_def
-  - action: action_reset_all_slots
   
 - story: another_definition_path_1
   steps: 
   - action: utter_another_def
   - intent: affirm
   - action: utter_ask_def
-  - action: def_form
-  - active_loop: def_form
-  - slot_was_set:
-    - requested_slot: definition
-  - slot_was_set:
-    - definition: tcp
-  - slot_was_set:
-    - definition: FAJ 121 1447
-  - slot_was_set:
-    - definition: Uplink Adaptive Retransmission Enhancement
-  - active_loop: null
-  - slot_was_set:
-    - requested_slot: null
+  - intent: ask_help_definition
+  - action: Action_Validate_feature
   - action: utter_another_def 
-  - action: action_reset_all_slots
   
 - story: another_definition_path _2
   steps: 

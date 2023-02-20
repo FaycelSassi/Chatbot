@@ -13,22 +13,22 @@ rules:
   - action: utter_iamabot
 
 
-- rule: Activate def form
-  steps:
-  - intent: ask_help_definition
-  - action: def_form
-  - active_loop: def_form
+# - rule: Activate def form
+#   steps:
+#   - intent: ask_help_definition
+#   - action: def_form
+#   - active_loop: def_form
 
-- rule: Submit def form
-  condition:
-  - active_loop: def_form
-  steps:
-  - action: def_form
-  - active_loop: null
-  - slot_was_set:
-    - requested_slot: null
-  - action: utter_another_def
-  - action: action_reset_all_slots
+# - rule: Submit def form
+#   condition:
+#   - active_loop: def_form
+#   steps:
+#   - action: def_form
+#   - active_loop: null
+#   - slot_was_set:
+#     - requested_slot: null
+#   - action: utter_another_def
+#   - action: action_reset_all_slots
 
 - rule: Activate reseau phy Form
   steps:

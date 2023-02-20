@@ -14,49 +14,87 @@ client = pymongo.MongoClient("mongodb://localhost:27017/")
 # Get the database
 db = client["rasa"]
 
+def create_bigram(w):
+    return[w[i]+w[i+1] for i in range(len(w)-1)]
+
+def get_simularity(w1,w2):
+    w1,w2=w1.lower(),w2.lower()
+    common=[]
+    bigram1,bigram2= create_bigram(w1),create_bigram(w2)
+    for i in range(len(bigram1)):
+        try:
+            cmn_elt=bigram2.index(bigram1[i])
+            common.append(bigram1[i])
+        except:
+            continue
+    return len(common)/max(len(bigram1),len(bigram2))
+
+
+def autocorrect(word,coll,sim_threshold=0.6):
+    max_sim=0.0
+    most_sim_word = word
+    fields = ['abbrv', 'fullname']
+    db = set()
+    cursor = coll.find({})
+    for document in cursor:
+        for field in fields:
+            if field in document:
+                words = set(document[field].split())
+                db.update(words)
+    
+    for dw in db:
+        cur_sim=get_simularity(word,dw)
+        if cur_sim>max_sim:
+            max_sim= cur_sim
+            most_sim_word= dw
+
+    return most_sim_word if max_sim> sim_threshold else "none"
+
 
  #sending definition
-class ValidateDefForm(FormValidationAction):
+class ValidateDefForm(Action):
     def name(self) -> Text:
-        return "validate_def_form"
-
-    def validate_definition(
-        self,
-        slot_value: Any,
-        dispatcher: CollectingDispatcher,
-        tracker: Tracker,
-        domain: DomainDict,
-    ) -> Dict[Text, Any]:
-        """Validate `definition` value."""
-        slot_value=slot_value.replace(" ", "")
-        print(slot_value)
-        aff="Sorry, feature is yet to be added"
-        if slot_value == None:
-            dispatcher.utter_message("Can you please write the term that you're looking for again")
-            return {"definition": None}
-        else:
-            # Get the collection
-            collection = db["chap1"]# perform the query
-            query = {
-                "$or": [
-                    {"abbrv": {"$regex": slot_value.upper()}},
-                    {"fullname": {"$regex": slot_value.upper()}}
-                ]
-            }
-            documents = collection.find(query)
-            # loop through the matching documents and print their fields
-            i = 1
-            if collection.count_documents(query) > 0:                
-                for document in documents:
-                    aff = str(i) + " - " + document['abbrv'] + " : " + document['fullname'] + " " + document['definition']
-                    if document['others'] != "":
-                        aff = str(i) + " - " + document['abbrv'] + " : " + document['fullname'] + " " + document['definition'] + " for more information: " + document['others']
-                    print(aff)
-                    dispatcher.utter_message(aff)
-                    i += 1   
-            dispatcher.utter_message("number of features found with "+slot_value+" is "+str(i-1))
-            return {"definition": slot_value}
-
+        return "Action_Validate_feature"
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> list[Dict[Text, Any]]:
+            slot_values=tracker.latest_message.get("text")
+            aff="Sorry, feature is yet to be added"
+            if slot_values == None:
+                dispatcher.utter_message("Can you please write the term that you're looking for again")
+                return {}
+            else:        
+                # Get the collection
+                collection = db["chap1"]# perform the query
+                slot_value="none"
+                for x in slot_values.split():
+                    if autocorrect(x,collection)!= None:
+                        slot_value=autocorrect(x,collection)
+                        print(slot_value) 
+                if slot_value=="none":
+                    dispatcher.utter_message("Can you please write the term that you're looking for again")
+                    return {}
+                else:
+                    query = {
+                        "$or": [
+                            {"abbrv": {"$regex": slot_value.upper()}},
+                            {"fullname": {"$regex": slot_value.upper()}}
+                        ]
+                    }
+                    documents = collection.find(query)
+                    # loop through the matching documents and print their fields
+                    i = 1
+                    if collection.count_documents(query) > 0:                
+                        for document in documents:
+                            aff = str(i) + " - " + document['abbrv'] + " : " + document['fullname'] + " " + document['definition']
+                            if document['others'] != "":
+                                aff = str(i) + " - " + document['abbrv'] + " : " + document['fullname'] + " " + document['definition'] + " for more information: " + document['others']
+                            print(aff)
+                            dispatcher.utter_message(aff)
+                            i += 1   
+                    dispatcher.utter_message("number of features found with "+slot_value+" is "+str(i-1))
+                    return {}
+        
 
 #validate existence
 def clean_name(name):
