@@ -51,18 +51,20 @@ nlu:
     - am I talking to a bot?
     - am I talking to a human?
 #the intent to give the name of the definition we'd like to know about
-- intent: give_definition
-  examples: |
-    - [](definition)
-    - what is [tcp](definition)
-    - what's included in the feature [nir](definition)
-    - give me the definition of the feature [kpi](definition)
-    - [uplink](definition)
-    - [R503](definition)
-    - [ASGH](definition)
-    - what is the [FAJ 121 1447](definition)
-    - [Uplink Adaptive Retransmission Enhancement] (definition) do
-    - [R503](definition)
+# - intent: give_definition
+#   examples: |
+#     - [](definition)
+#     - what is [tcp](definition)
+#     - what's included in the feature [nir](definition)
+#     - give me the definition of the feature [kpi](definition)
+#     - [uplink](definition)
+#     - [R503](definition)
+#     - [ASGH](definition)
+#     - what is the [FAJ 121 1447](definition)
+#     - [Uplink Adaptive Retransmission Enhancement] (definition) do
+#     - [R503](definition)
+#     - [advanced subscriber group handling-based prescheduling](definition)
+#     - [asgh-based](definition)
 #the intent to ask about a feature or a definition
 - intent: ask_help_definition
   examples: |
