@@ -27,22 +27,22 @@ def get_simularity(w1,w2):
             common.append(bigram1[i])
         except:
             continue
-    return len(common)/max(len(bigram1),len(bigram2))
+    return len(common)/max(len(bigram1),len(bigram2),1)
 
 
 def autocorrect(word,coll,sim_threshold=0.6):
     max_sim=0.0
     most_sim_word = word
     fields = ['abbrv', 'fullname']
-    db = set()
+    dbs = set()
     cursor = coll.find({})
     for document in cursor:
         for field in fields:
             if field in document:
                 words = set(document[field].split())
-                db.update(words)
+                dbs.update(words)
     
-    for dw in db:
+    for dw in dbs:
         cur_sim=get_simularity(word,dw)
         if cur_sim>max_sim:
             max_sim= cur_sim
@@ -61,15 +61,17 @@ class ValidateDefForm(Action):
             slot_values=tracker.latest_message.get("text")
             aff="Sorry, feature is yet to be added"
             if slot_values == None:
-                dispatcher.utter_message("Can you please write the term that you're looking for again")
+                dispatcher.utter_message("No terms were added")
                 return {}
             else:        
                 # Get the collection
-                collection = db["chap1"]# perform the query
+                collection = db["chap1"]
                 slot_value="none"
                 for x in slot_values.split():
-                    if autocorrect(x,collection)!= None:
-                        slot_value=autocorrect(x,collection)
+                    print(x)
+                    if autocorrect(x.upper(),collection)!= None:
+                        if autocorrect(x,collection)!="none":
+                            slot_value=autocorrect(x,collection)
                         print(slot_value) 
                 if slot_value=="none":
                     dispatcher.utter_message("Can you please write the term that you're looking for again")

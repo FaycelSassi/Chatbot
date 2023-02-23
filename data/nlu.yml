@@ -53,18 +53,18 @@ nlu:
 #the intent to give the name of the definition we'd like to know about
 # - intent: give_definition
 #   examples: |
-#     - [](definition)
-#     - what is [tcp](definition)
-#     - what's included in the feature [nir](definition)
-#     - give me the definition of the feature [kpi](definition)
-#     - [uplink](definition)
-#     - [R503](definition)
-#     - [ASGH](definition)
-#     - what is the [FAJ 121 1447](definition)
-#     - [Uplink Adaptive Retransmission Enhancement] (definition) do
-#     - [R503](definition)
-#     - [advanced subscriber group handling-based prescheduling](definition)
-#     - [asgh-based](definition)
+    # - [](definition)
+    # - what is [tcp](definition)
+    # - what's included in the feature [nir](definition)
+    # - give me the definition of the feature [kpi](definition)
+    # - [uplink](definition)
+    # - [R503](definition)
+    # - [ASGH](definition)
+    # - what is the [FAJ 121 1447](definition)
+    # - [Uplink Adaptive Retransmission Enhancement] (definition) do
+    # - [R503](definition)
+    # - [advanced subscriber group handling-based prescheduling](definition)
+    # - [asgh-based](definition)
 #the intent to ask about a feature or a definition
 - intent: ask_help_definition
   examples: |
@@ -83,7 +83,16 @@ nlu:
     - features with 
     - what's the new feature
     - i need a feature
-
+    - tcp
+    - nir
+    - kpi
+    - uplink
+    - R503
+    - ASGH
+    - what is the FAJ 121 1447
+    - what does Uplink Adaptive Retransmission Enhancement do
+    - R503
+    - advanced subscriber group handling-based prescheduling
 #Questions about  reseau phy by ID, name, BSC, fequency, LAC , Latitude , Longitude, HBA, Type d'Installation, azimut du rayonnement maximum dans chaque secteur
 - intent: ask_for_reseau_phy
   examples: |
