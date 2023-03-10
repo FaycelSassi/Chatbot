@@ -8,6 +8,7 @@ from rasa_sdk import Action, Tracker, FormValidationAction
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
 from rasa_sdk.events import AllSlotsReset
+from rasa_sdk.events import SlotSet
 
 #setting up the connection to the database
 client = pymongo.MongoClient("mongodb://localhost:27017/")
@@ -30,10 +31,14 @@ def get_simularity(w1,w2):
     return len(common)/max(len(bigram1),len(bigram2),1)
 
 
-def autocorrect(word,coll,sim_threshold=0.6):
+def autocorrect(word,coll,search,sim_threshold=0.6):
     max_sim=0.0
     most_sim_word = word
-    fields = ['abbrv', 'fullname']
+    if search==1:
+        fields = ['abbrv', 'fullname']
+    if search==2:
+        fields=['BSC','Bande de fréquences','Gouvernorat','Site','Site_Code',"Type d'Installation",'Longitude','Latitude','LAC','Identifiant']
+        sim_threshold=0.7
     dbs = set()
     cursor = coll.find({})
     for document in cursor:
@@ -59,20 +64,20 @@ class ValidateDefForm(Action):
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> list[Dict[Text, Any]]:
             slot_values=tracker.latest_message.get("text")
+            search=1
             aff="Sorry, feature is yet to be added"
             if slot_values == None:
                 dispatcher.utter_message("No terms were added")
                 return {}
             else:        
                 # Get the collection
+
                 collection = db["chap1"]
                 slot_value="none"
                 for x in slot_values.split():
-                    print(x)
                     if autocorrect(x.upper(),collection)!= None:
                         if autocorrect(x,collection)!="none":
-                            slot_value=autocorrect(x,collection)
-                        print(slot_value) 
+                            slot_value=autocorrect(x,collection,search)                       
                 if slot_value=="none":
                     dispatcher.utter_message("Can you please write the term that you're looking for again")
                     return {}
@@ -117,40 +122,107 @@ class ActionResetAllSlots(Action):
     def run(self, dispatcher, tracker, domain):
             return [AllSlotsReset()]
 
-class ValidateReseauPhyForm(FormValidationAction):
-    def name(self) -> Text:
-        return "validate_reseau_phy_form"
+# class ValidateReseauPhyForm(FormValidationAction):
+#     def name(self) -> Text:
+#         return "validate_reseau_phy_form"
 
-    def validate_site(
-        self,
-        slot_value: Any,
-        dispatcher: CollectingDispatcher,
-        tracker: Tracker,
-        domain: DomainDict,
-    ) -> Dict[Text, Any]:
-        """Validate `site` value."""
-        if slot_value!= None:
+#     def validate_site(
+#         self,
+#         slot_value: Any,
+#         dispatcher: CollectingDispatcher,
+#         tracker: Tracker,
+#         domain: DomainDict,
+#     ) -> Dict[Text, Any]:
+#         """Validate `site` value."""
+#         if slot_value!= None:
+#                 # Get the collection
+#             collection = db["reseau-physique"]
+#             # Find all documents in the collection
+#             slot_value=slot_value.replace(" ", "")
+#             print(slot_value)
+#             aff="Sorry, reseau is yet to be added"
+#             documents = collection.find({"$or": [{"Site": slot_value.upper()},
+#                                         {"Site_Code": slot_value.upper()},{"Identifiant": slot_value.upper()},{"BSC": slot_value.upper()},{"Bande de fréquences": slot_value.upper()},{"Gouvernorat": slot_value.upper()}
+#                                         ,{"HBA(m)": slot_value.upper()},{"LAC": slot_value.upper()},{"Latitude": slot_value.upper()}
+#                                         ,{"Longitude": slot_value.upper()},{"Puissance isotrope rayonnée équivalente (PIRE) dans chaque secteur": slot_value.upper()},{"Secteur": slot_value.upper()}
+#                                         ,{"Type d'Installation": slot_value.upper()},{"azimut du rayonnement maximum dans chaque secteur": slot_value.upper()}]})
+#             print(documents)
+#             if documents!=None :
+#                 i = 0
+#                 aff=""
+#                 for document in documents: 
+#                     i+=1
+#                     aff+=str(i)+" - "+document['Site']+" : "+ document['Identifiant']+" : "+ document['Site_Code']+" : "+ document['LAC']+" : "+ document['Bande de fréquences']+"\n"
+#             print(aff)
+#             dispatcher.utter_message(aff)
+#             dispatcher.utter_message("the number of sites is "+str(i))
+#             return {"site": slot_value}
+#         else:
+#             dispatcher.utter_message(text=f"Can you please write the term that you're looking for again")
+#             return {"site": None}
+
+class ActionSolveProblem(Action):
+
+    def name(self) -> Text:
+        return "action_problem_solve"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        current_problem = next(tracker.get_latest_entity_values("problem"), None)
+        
+        if not current_problem:
+            msg = "no problem have been checked"
+            dispatcher.utter_message(text=msg)
+            return []
+        
+        
+        msg = f"Sure thing! I'll remember that the problem is {current_problem}."
+        dispatcher.utter_message(text=msg)
+        
+        return [SlotSet("problem", current_problem)]
+    
+ #sending definition
+class ActionSiteInfo(Action):
+    def name(self) -> Text:
+        return "action_site_info"
+    def run(
+        self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
+    ) -> list[Dict[Text, Any]]:
+            slot_values=tracker.latest_message.get("text")
+            print(slot_values)
+            search=2
+            aff="Sorry, physical is yet to be added"
+            if slot_values == None:
+                dispatcher.utter_message("No terms were added")
+                return {}
+            else:        
                 # Get the collection
-            collection = db["reseau-physique"]
-            # Find all documents in the collection
-            slot_value=slot_value.replace(" ", "")
-            print(slot_value)
-            aff="Sorry, reseau is yet to be added"
-            documents = collection.find({"$or": [{"Site": slot_value.upper()},
+                collection = db["reseau-physique"]
+                slot_value="none"
+                for x in slot_values.split():
+                    print(x)
+                    print(autocorrect(x.upper(),collection,search))
+                    if autocorrect(x.upper(),collection,search)!= None:
+                        if autocorrect(x.upper(),collection,search)!="none":
+                            slot_value=autocorrect(x.upper(),collection,search)                      
+                if slot_value=="none":
+                    dispatcher.utter_message("Physical network can't be found")
+                    return {}
+                else:
+                    documents = collection.find({"$or": [{"Site": slot_value.upper()},
                                         {"Site_Code": slot_value.upper()},{"Identifiant": slot_value.upper()},{"BSC": slot_value.upper()},{"Bande de fréquences": slot_value.upper()},{"Gouvernorat": slot_value.upper()}
                                         ,{"HBA(m)": slot_value.upper()},{"LAC": slot_value.upper()},{"Latitude": slot_value.upper()}
                                         ,{"Longitude": slot_value.upper()},{"Puissance isotrope rayonnée équivalente (PIRE) dans chaque secteur": slot_value.upper()},{"Secteur": slot_value.upper()}
                                         ,{"Type d'Installation": slot_value.upper()},{"azimut du rayonnement maximum dans chaque secteur": slot_value.upper()}]})
-            print(documents)
-            if documents!=None :
-                i = 0
-                aff=""
-                for document in documents: 
-                    i+=1
-                    aff+=str(i)+" - "+document['Site']+" : "+ document['Identifiant']+" : "+ document['Site_Code']+" : "+ document['LAC']+" : "+ document['Bande de fréquences']+"\n"
-            print(aff)
-            dispatcher.utter_message(aff)
-            return {"site": slot_value}
-        else:
-            dispatcher.utter_message(text=f"Can you please write the term that you're looking for again")
-            return {"site": None}
+                    print(documents)
+                    if documents!=None :
+                        i = 0
+                        aff=""
+                        for document in documents: 
+                            i+=1
+                            aff+=str(i)+" - "+document['Site']+" : "+ document['Identifiant']+" : "+ document['Site_Code']+" : "+ document['LAC']+" : "+ document['Bande de fréquences']+"\n"
+                        print(aff)
+                        dispatcher.utter_message(aff)
+                        dispatcher.utter_message("the number of sites with "+slot_value+" is "+str(i))
+                        return {}

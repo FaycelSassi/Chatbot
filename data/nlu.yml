@@ -93,8 +93,8 @@ nlu:
     - what does Uplink Adaptive Retransmission Enhancement do
     - R503
     - advanced subscriber group handling-based prescheduling
-#Questions about  reseau phy by ID, name, BSC, fequency, LAC , Latitude , Longitude, HBA, Type d'Installation, azimut du rayonnement maximum dans chaque secteur
-- intent: ask_for_reseau_phy
+#Questions about  reseau phy by ID, name, BSC, fequency, LAC , Latitude , Longitude, HBA, Type d'Installation, azimut du rayonnement maximum dans chaque secteur, sectuers and gouvernorat
+- intent: inform_about_reseau_phy
   examples: |
     - i want some infos 
     - give me infos
@@ -109,28 +109,25 @@ nlu:
     - sites with LAC
     - sites with HBA
     - I'm interested in the informations of a site
-#Questions about  reseau phy by ID, name, BSC, fequency, LAC , Latitude , Longitude, HBA, Type d'Installation, azimut du rayonnement maximum dans chaque secteur, sectuers and gouvernorat
-- intent: inform_about_reseau_phy
-  examples: |
-    - what's the infos for [HBIRA_GSM](site)
-    - give me all info for [MHERZA_EST_GSM](site)
-    - give me all information about [MHERZA_EST_GSM](site)
-    - [MHERZA_EST_GSM](site)
-    - i want [HBIRA_GSM](site)
-    - [MAH3321](site)
-    - [33211](site)
-    - [33661](site)
-    - what's [HBIRA_GSM](site)
-    -[MAH3366](site)
-    -[GSM900](site)
-    -[47](site)
-    -[33MHEGA](site)
-    -[Pylone](site)
-    -[170](site)
-    -[35,1704](site)
-    -[10,2292](site)
-    -[27,5](site)
-    -[Mahdia](site)
+    - what's the infos for HBIRA_GSM
+    - give me all info for MHERZA_EST_GSM
+    - give me all information about MHERZA_EST_GSM
+    - MHERZA_EST_GSM
+    - i want HBIRA_GSM
+    - MAH3321
+    - site with code 33211
+    - site with 33661
+    - what's HBIRA_GSM
+    - MAH3366
+    - GSM900
+    - 47
+    - 33MHEGA
+    - Pylone
+    - LAC 170
+    - Longtitude 35,1704
+    - latitude 10,2292
+    - HBA 27,5
+    - Sites in Mahdia
 #adding a new réseau physique
 - intent: add_phy_net
   examples: |
@@ -139,13 +136,19 @@ nlu:
     - add a physical network
     - i want to physical network
 
-#adding a new réseau physique
+#adding a new feature
 - intent: ask_add_feature
   examples: |
     - can i add a feature 
     - i'd like to add a feature
     - add a feature
     - i want to add a feature
-    
-    
+#help solve a problem intent
+- intent: inform_problem
+  examples: |
+    - check params
+    - validate params
+    - validate parameters
+    - check parameters
+    - find solutions to parameters
 

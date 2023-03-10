@@ -30,21 +30,25 @@ rules:
 #   - action: utter_another_def
 #   - action: action_reset_all_slots
 
-- rule: Activate reseau phy Form
+# - rule: Activate reseau phy Form
+#   steps:
+#   - intent: ask_for_reseau_phy
+#   - action: reseau_phy_form
+#   - active_loop: reseau_phy_form
+
+# - rule: Submit reseau phy  Form
+#   condition:
+#   - active_loop: reseau_phy_form
+#   steps:
+#   - action: reseau_phy_form
+#   - active_loop: null
+#   - slot_was_set:
+#     - requested_slot: null
+#   - action: utter_resea_phy_slots
+#   - action: action_reset_all_slots
+
+
+- rule: problem solving
   steps:
-  - intent: ask_for_reseau_phy
-  - action: reseau_phy_form
-  - active_loop: reseau_phy_form
-
-- rule: Submit reseau phy  Form
-  condition:
-  - active_loop: reseau_phy_form
-  steps:
-  - action: reseau_phy_form
-  - active_loop: null
-  - slot_was_set:
-    - requested_slot: null
-  - action: utter_resea_phy_slots
-  - action: action_reset_all_slots
-
-
+  - intent: inform_problem
+  - action: action_problem_solve
