@@ -16,32 +16,26 @@ client = pymongo.MongoClient("mongodb://localhost:27017/")
 # Get the database
 db = client["rasa"]
 
-def levenshtein_distance(s, t):
-    # This function calculates the Levenshtein distance between two strings s and t.
-    m, n = len(s), len(t)
-    if m == 0:
-        return n
-    if n == 0:
-        return m
-    d = np.zeros((m+1, n+1))
-    for i in range(m+1):
-        d[i, 0] = i
-    for j in range(n+1):
-        d[0, j] = j
-    for j in range(1, n+1):
-        for i in range(1, m+1):
-            if s[i-1] == t[j-1]:
-                cost = 0
-            else:
-                cost = 1
-            d[i, j] = min(d[i-1, j]+1, d[i, j-1]+1, d[i-1, j-1]+cost)
-    return d[m, n]
+def create_bigram(w):
+    return[w[i]+w[i+1] for i in range(len(w)-1)]
+
+def get_simularity(w1,w2):
+    w1,w2=w1.lower(),w2.lower()
+    common=[]
+    bigram1,bigram2= create_bigram(w1),create_bigram(w2)
+    for i in range(len(bigram1)):
+        try:
+            cmn_elt=bigram2.index(bigram1[i])
+            common.append(bigram1[i])
+        except:
+            continue
+    return len(common)/max(len(bigram1),len(bigram2),1)
 
 
-def auto_correct(word,coll,search):
+def autocorrect(word,coll,search):
 
     # This function takes a word and a list of valid words, and returns the closest match to the input word from the list of valid words.
-
+    threshold =0.6
     if search==1:
         fields = ['abbrv', 'fullname']
     if search==2:
@@ -52,13 +46,17 @@ def auto_correct(word,coll,search):
     for document in cursor:
         for field in fields:
             if field in document:
-                words = set(document[field].split())
-                dbs.update(words)
-    for w in words:
-        distances.append(levenshtein_distance(word, w))
-    closest_word = words[np.argmin(distances)]
-    return closest_word
+                word_list = set(document[field].split())
+                dbs.update(word_list)
+     # Get the list of similar words with their similarity score
+    similar_words = [(w, get_simularity(word, w)) for w in dbs]
 
+    # Find the word with the highest similarity score above the threshold
+    best_word = max(similar_words, key=lambda x: x[1] if x[1] >= threshold else -1)
+    print(best_word)
+    if best_word[1] < threshold: 
+        return "none"
+    return best_word[0]
 
 
  #sending definition
@@ -89,14 +87,14 @@ class ValidateDefForm(Action):
                 else:
                     query = {
                         "$or": [
-                            {"abbrv": {"$regex": slot_value.upper()}},
-                            {"fullname": {"$regex": slot_value.upper()}}
+                            {"abbrv": {"$regex": slot_value}},
+                            {"fullname": {"$regex": slot_value}}
                         ]
                     }
                     documents = collection.find(query)
                     # loop through the matching documents and print their fields
                     i = 1
-                    if collection.count_documents(query) > 0:                
+                    if collection.count_documents(query) > 0: 
                         for document in documents:
                             aff = str(i) + " - " + document['abbrv'] + " : " + document['fullname'] + " " + document['definition']
                             if document['others'] != "":
