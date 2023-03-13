@@ -1,6 +1,7 @@
 import datetime as dt 
 from typing import Any, Text, Dict, List
 import pymongo
+import numpy as np
 import json
 import pandas as pd
 import pymysql
@@ -15,30 +16,37 @@ client = pymongo.MongoClient("mongodb://localhost:27017/")
 # Get the database
 db = client["rasa"]
 
-def create_bigram(w):
-    return[w[i]+w[i+1] for i in range(len(w)-1)]
+def levenshtein_distance(s, t):
+    # This function calculates the Levenshtein distance between two strings s and t.
+    m, n = len(s), len(t)
+    if m == 0:
+        return n
+    if n == 0:
+        return m
+    d = np.zeros((m+1, n+1))
+    for i in range(m+1):
+        d[i, 0] = i
+    for j in range(n+1):
+        d[0, j] = j
+    for j in range(1, n+1):
+        for i in range(1, m+1):
+            if s[i-1] == t[j-1]:
+                cost = 0
+            else:
+                cost = 1
+            d[i, j] = min(d[i-1, j]+1, d[i, j-1]+1, d[i-1, j-1]+cost)
+    return d[m, n]
 
-def get_simularity(w1,w2):
-    w1,w2=w1.lower(),w2.lower()
-    common=[]
-    bigram1,bigram2= create_bigram(w1),create_bigram(w2)
-    for i in range(len(bigram1)):
-        try:
-            cmn_elt=bigram2.index(bigram1[i])
-            common.append(bigram1[i])
-        except:
-            continue
-    return len(common)/max(len(bigram1),len(bigram2),1)
 
+def auto_correct(word,coll,search):
 
-def autocorrect(word,coll,search,sim_threshold=0.6):
-    max_sim=0.0
-    most_sim_word = word
+    # This function takes a word and a list of valid words, and returns the closest match to the input word from the list of valid words.
+
     if search==1:
         fields = ['abbrv', 'fullname']
     if search==2:
         fields=['BSC','Bande de fréquences','Gouvernorat','Site','Site_Code',"Type d'Installation",'Longitude','Latitude','LAC','Identifiant']
-        sim_threshold=0.7
+    distances = []
     dbs = set()
     cursor = coll.find({})
     for document in cursor:
@@ -46,14 +54,11 @@ def autocorrect(word,coll,search,sim_threshold=0.6):
             if field in document:
                 words = set(document[field].split())
                 dbs.update(words)
-    
-    for dw in dbs:
-        cur_sim=get_simularity(word,dw)
-        if cur_sim>max_sim:
-            max_sim= cur_sim
-            most_sim_word= dw
+    for w in words:
+        distances.append(levenshtein_distance(word, w))
+    closest_word = words[np.argmin(distances)]
+    return closest_word
 
-    return most_sim_word if max_sim> sim_threshold else "none"
 
 
  #sending definition
@@ -75,8 +80,8 @@ class ValidateDefForm(Action):
                 collection = db["chap1"]
                 slot_value="none"
                 for x in slot_values.split():
-                    if autocorrect(x.upper(),collection)!= None:
-                        if autocorrect(x,collection)!="none":
+                    if autocorrect(x.upper(),collection,search)!= None:
+                        if autocorrect(x,collection,search)!="none":
                             slot_value=autocorrect(x,collection,search)                       
                 if slot_value=="none":
                     dispatcher.utter_message("Can you please write the term that you're looking for again")
@@ -121,45 +126,6 @@ class ActionResetAllSlots(Action):
 
     def run(self, dispatcher, tracker, domain):
             return [AllSlotsReset()]
-
-# class ValidateReseauPhyForm(FormValidationAction):
-#     def name(self) -> Text:
-#         return "validate_reseau_phy_form"
-
-#     def validate_site(
-#         self,
-#         slot_value: Any,
-#         dispatcher: CollectingDispatcher,
-#         tracker: Tracker,
-#         domain: DomainDict,
-#     ) -> Dict[Text, Any]:
-#         """Validate `site` value."""
-#         if slot_value!= None:
-#                 # Get the collection
-#             collection = db["reseau-physique"]
-#             # Find all documents in the collection
-#             slot_value=slot_value.replace(" ", "")
-#             print(slot_value)
-#             aff="Sorry, reseau is yet to be added"
-#             documents = collection.find({"$or": [{"Site": slot_value.upper()},
-#                                         {"Site_Code": slot_value.upper()},{"Identifiant": slot_value.upper()},{"BSC": slot_value.upper()},{"Bande de fréquences": slot_value.upper()},{"Gouvernorat": slot_value.upper()}
-#                                         ,{"HBA(m)": slot_value.upper()},{"LAC": slot_value.upper()},{"Latitude": slot_value.upper()}
-#                                         ,{"Longitude": slot_value.upper()},{"Puissance isotrope rayonnée équivalente (PIRE) dans chaque secteur": slot_value.upper()},{"Secteur": slot_value.upper()}
-#                                         ,{"Type d'Installation": slot_value.upper()},{"azimut du rayonnement maximum dans chaque secteur": slot_value.upper()}]})
-#             print(documents)
-#             if documents!=None :
-#                 i = 0
-#                 aff=""
-#                 for document in documents: 
-#                     i+=1
-#                     aff+=str(i)+" - "+document['Site']+" : "+ document['Identifiant']+" : "+ document['Site_Code']+" : "+ document['LAC']+" : "+ document['Bande de fréquences']+"\n"
-#             print(aff)
-#             dispatcher.utter_message(aff)
-#             dispatcher.utter_message("the number of sites is "+str(i))
-#             return {"site": slot_value}
-#         else:
-#             dispatcher.utter_message(text=f"Can you please write the term that you're looking for again")
-#             return {"site": None}
 
 class ActionSolveProblem(Action):
 
