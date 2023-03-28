@@ -37,6 +37,13 @@ stories:
   - intent: deny
   - action: utter_happy
 
+- story: validating counter values
+  steps: 
+  - intent: greet
+  - action: utter_greet
+  - intent: inform_problem
+  - action: action_problem_solve
+
 
 - story: interactive_story_1
   steps:

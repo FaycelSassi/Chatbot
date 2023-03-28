@@ -5,6 +5,8 @@ import numpy as np
 import json
 import pandas as pd
 import pymysql
+import os
+
 from rasa_sdk import Action, Tracker, FormValidationAction
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
@@ -125,26 +127,6 @@ class ActionResetAllSlots(Action):
     def run(self, dispatcher, tracker, domain):
             return [AllSlotsReset()]
 
-class ActionSolveProblem(Action):
-
-    def name(self) -> Text:
-        return "action_problem_solve"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        current_problem = next(tracker.get_latest_entity_values("problem"), None)
-        
-        if not current_problem:
-            msg = "no problem have been checked"
-            dispatcher.utter_message(text=msg)
-            return []
-        
-        
-        msg = f"Sure thing! I'll remember that the problem is {current_problem}."
-        dispatcher.utter_message(text=msg)
-        
-        return [SlotSet("problem", current_problem)]
     
  #sending definition
 class ActionSiteInfo(Action):
@@ -190,3 +172,93 @@ class ActionSiteInfo(Action):
                         dispatcher.utter_message(aff)
                         dispatcher.utter_message("the number of sites with "+slot_value+" is "+str(i))
                         return {}
+                    
+#the reset all slots action
+class ActionProblemSolve(Action):
+    def name(self):
+            return "action_problem_solve"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+            
+            # file_path = os.path.join(os.path.dirname(__file__), 'LteParams.xlsx')
+            # params = pd.read_excel(file_path)
+            # retrieve all documents from the collection
+            client = pymongo.MongoClient("mongodb://localhost:27017/")
+            db = client["rasa"]
+            collection = db["chap2"]
+            data = list(collection.find())
+            # create a Pandas DataFrame from the list of dictionaries
+            Xdf = pd.DataFrame(data)
+            Xdf = Xdf.drop('_id', axis=1)
+            # print(Xdf)
+            paramlist = Xdf.values.tolist()
+            solutionslist=[]
+            next=[]
+            collection = db['Conteurs']
+            # retrieve documents with specified columns
+            documents = collection.find({})
+            df = pd.DataFrame(list(documents))
+            k=0
+            j=0
+            for param in paramlist:
+                param[1]=param[1].replace(' ', '')
+                param[0]=param[0].replace(' ', '')
+                param[2]=param[2].replace(' ', '')
+                if param[2]=='notready' and param[4]=='none':
+                    next=param[1].split(",")
+                if param[0] in next:
+                    if param[4]== 'none' and param[2]!= 'notready':
+                        solutionslist.append(param[4])
+                    if param[2]=='notready' and param[4]!='none':
+                        for x in param[4]:
+                            if x.replace(" ", "") not in df.columns:
+                                dispatcher.utter_message(x + " values not added in database")
+                            else: k = 1
+                        if k==1:
+                            i=param[4]
+                            if len(i)== 2:
+                                j+=1
+                                i[0].replace(" ", "") 
+                                i[1].replace(" ", "")
+                                result = df.apply(lambda row: eval(param[3], {i[0].replace(" ", ""): row[i[0].replace(" ", "")], i[1].replace(" ", ""): row[i[1].replace(" ", "")]}), axis=1) 
+                                df["resultat "+param[0]]=result
+            s=[]
+            for j in range(len(df)):
+                s.append('')                   
+            solution=[]
+            sol=""
+            solist=[]
+            #Determine a solution to the problems
+            next=""   
+            for i in range(len(df)):
+                for col in df.columns:
+                    if df[col][i]==False:
+                        if "resultat" in col:
+                            solist=[] 
+                            x=col.replace("resultat ","")
+                            my_string=''
+                            for param in paramlist:
+                                if param[0]==x:
+                                    next=param[1]
+                                if next!="" :
+                                    for y in next.split(","):
+                                        if y==param[0]:
+                                            if param[2] not in solution:
+                                                solution.append(param[2])              
+                            my_string = ' '.join(solution)
+                            my_string='for '+x+' : '+my_string 
+                            if my_string not in solution:
+                                solist.append(my_string)
+                            sol=''.join(solist)
+                            if sol not in s[i]:
+                                s[i]=s[i]+sol+' ;\n '
+                            next=""
+            df['solution']=s
+            # select columns A and C by name using loc, and convert to a list
+            selected_columns = df.loc[:, ['OSS_ID', 'SN','ELEMENT','MOID','solution']].values.tolist()
+            for col in selected_columns:
+                if col[4]!='':
+                    dispatcher.utter_message(col[0]+" - "+col[1]+" : \n"+col[4]+" - ")
+                                

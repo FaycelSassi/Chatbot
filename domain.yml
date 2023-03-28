@@ -63,7 +63,7 @@ actions:
 
 responses:
   utter_greet:
-  - text: Hey! How can i help you?
+  - text: Hey I'm TTBot! How can i help you?
   utter_did_that_help:
   - text: Did that help you?
   utter_ask_def:

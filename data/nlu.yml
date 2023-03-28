@@ -146,9 +146,10 @@ nlu:
 #help solve a problem intent
 - intent: inform_problem
   examples: |
-    - check params
-    - validate params
-    - validate parameters
-    - check parameters
-    - find solutions to parameters
+    - check counters
+    - validate kpis
+    - validate counters
+    - check counters
+    - find solutions to counters
+
 
