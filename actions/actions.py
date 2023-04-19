@@ -191,6 +191,9 @@ class ActionProblemSolve(Action):
             data = list(collection.find())
             # create a Pandas DataFrame from the list of dictionaries
             Xdf = pd.DataFrame(data)
+            if Xdf == None:
+                dispatcher.utter("please add data to the database")
+                return {}
             Xdf = Xdf.drop('_id', axis=1)
             # print(Xdf)
             paramlist = Xdf.values.tolist()
@@ -261,4 +264,121 @@ class ActionProblemSolve(Action):
             for col in selected_columns:
                 if col[4]!='':
                     dispatcher.utter_message(col[0]+" - "+col[1]+" : \n"+col[4]+" - ")
-                                
+            
+            return {}      
+
+#the reset all slots action
+class ActionProblemSolveML(Action):
+    def name(self):
+            return "action_problem_solve_ML"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+            import pandas as pd
+            import pymongo
+            # retrieve all documents from the collection
+            client = pymongo.MongoClient("mongodb://localhost:27017/")
+            db = client["rasa"]
+            collection = db["Chap2"]
+            data = list(collection.find())
+            # create a Pandas DataFrame from the list of dictionaries
+            Xdf = pd.DataFrame(data)
+            Xdf = Xdf.drop('_id', axis=1)
+            paramlist = Xdf.values.tolist()
+            solutionslist=[]
+            next=[]
+            collection = db['Conteurs']
+            # retrieve documents with specified columns
+            documents = collection.find({})
+            df = pd.DataFrame(list(documents))
+            k=0
+            j=0
+            for param in paramlist:
+                param[1]=param[1].replace(' ', '')
+                param[0]=param[0].replace(' ', '')
+                param[2]=param[2].replace(' ', '')
+                if param[2]=='notready' and param[4]=='none':
+                    next=param[1].split(",")
+                if param[0] in next:
+                    if param[4]== 'none' and param[2]!= 'notready':
+                        solutionslist.append(param[4])
+                    if param[2]=='notready' and param[4]!='none':
+                        for x in param[4]:
+                            if x.replace(" ", "") not in df.columns:
+                             print(x + " values not added in database")
+                            else: k = 1
+                        if k==1:
+                            i=param[4]
+                            if len(i)== 2:
+                                j+=1
+                                i[0].replace(" ", "") 
+                                i[1].replace(" ", "")
+                                result = df.apply(lambda row: eval(param[3], {i[0].replace(" ", ""): row[i[0].replace(" ", "")], i[1].replace(" ", ""): row[i[1].replace(" ", "")]}), axis=1) 
+                                df["resultat "+param[0]]=result
+                # get the names of columns that contain 'resultat'
+            s=[]
+            for j in range(len(df)):
+                s.append('')
+            solution=[]
+            sol=""
+            solist=[]
+            #Determine a solution to the problems
+            next=""   
+            for i in range(len(df)):
+                for col in df.columns:
+                    if df[col][i]==False:
+                        if "resultat" in col:
+                            solist=[] 
+                            x=col.replace("resultat ","")
+                            my_string=''
+                            for param in paramlist:
+                                if param[0]==x:
+                                    next=param[1]
+                                if next!="" :
+                                    for y in next.split(","):
+                                        if y==param[0]:
+                                            if param[2] not in solution:
+                                                solution.append(param[2])              
+                            my_string = ' '.join(solution)
+                            my_string='for '+x+' : '+my_string 
+                            if my_string not in solution:
+                                solist.append(my_string)
+                            sol=''.join(solist)
+                            if sol not in s[i]:
+                                s[i]=s[i]+sol+' ;\n '
+                            next=""
+            dfknn=df.iloc[:, 9:12]
+            # Convert boolean columns to numeric (0 or 1)
+            dfknn['resultat HandoverExecutionFailure'] = dfknn['resultat HandoverExecutionFailure'].astype(int)
+            dfknn['resultat MCPCparams'] = dfknn['resultat MCPCparams'].astype(int)
+            # Repeat each row 3 times
+            dfknn = dfknn.loc[df.index.repeat(4)].reset_index(drop=True)
+            solution=dfknn['solution']
+            dfknn= dfknn.drop('solution', axis=1)
+            # We used pmHoExeSucc, pmHoExeAtt, pmCriticalBorderEvalReport, and pmBadCovSearchEvalReport as features. using iloc
+            from sklearn.model_selection import train_test_split
+            from sklearn.preprocessing import StandardScaler
+            from sklearn.neighbors import KNeighborsClassifier
+            from sklearn.metrics import accuracy_score
+
+            # Split the data into training and testing sets
+            X_train, X_test, y_train, y_test = train_test_split(dfknn,solution, test_size=0.4, random_state=42)
+
+            # Scale the data using StandardScaler
+            scaler = StandardScaler()
+            X_train_scaled = scaler.fit_transform(X_train)
+            X_test_scaled = scaler.transform(X_test)
+
+            # Train a KNN classifier
+            knn = KNeighborsClassifier(n_neighbors=5)
+            knn.fit(X_train, y_train)
+
+            # Make predictions on the test set
+            y_pred = knn.predict(X_test)
+
+            # Evaluate the accuracy of the classifier
+            accuracy = accuracy_score(y_test, y_pred)
+            print('Accuracy:', accuracy)
+         
+

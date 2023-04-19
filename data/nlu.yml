@@ -151,5 +151,13 @@ nlu:
     - validate counters
     - check counters
     - find solutions to counters
+#help solve a problem intent
+- intent: inform_problem_ML
+  examples: |
+    - using knn check counters
+    - validate kpis with ML
+    - validate counters using a random algorithm
+    - check counters by knn
+    - find solutions to counters with knn
 
 

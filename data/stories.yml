@@ -44,6 +44,13 @@ stories:
   - intent: inform_problem
   - action: action_problem_solve
 
+- story: validating counter values with ml
+  steps: 
+  - intent: greet
+  - action: utter_greet
+  - intent: inform_problem_ML
+  - action: action_problem_solve
+
 
 - story: interactive_story_1
   steps:
