@@ -3,7 +3,12 @@ from typing import Any, Text, Dict, List
 import pymongo
 import numpy as np
 import json
+from datetime import datetime, timedelta
 import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
 import os
 from rasa_sdk import Action, Tracker, FormValidationAction
 from rasa_sdk.executor import CollectingDispatcher
@@ -42,7 +47,7 @@ def autocorrect(word, coll, search):
         fields = ['abbrv', 'fullname']
     if search == 2:
         fields = ['BSC', 'Bande de fréquences', 'Gouvernorat', 'Site', 'Site_Code',
-            "Type d'Installation", 'Longitude', 'Latitude', 'LAC', 'Identifiant']
+                  "Type d'Installation", 'Longitude', 'Latitude', 'LAC', 'Identifiant']
     distances = []
     dbs = set()
     cursor = coll.find({})
@@ -176,7 +181,7 @@ class ActionSiteInfo(Action):
                         i += 1
                         aff += str(i)+" - "+document['Site']+" : " + document['Identifiant']+" : " + \
                             document['Site_Code']+" : " + document['LAC'] + \
-                        " : " + document['Bande de fréquences']+"\n"
+                            " : " + document['Bande de fréquences']+"\n"
                     print(aff)
                     dispatcher.utter_message(aff)
                     dispatcher.utter_message(
@@ -184,8 +189,7 @@ class ActionSiteInfo(Action):
                     return {}
 
 
-def findsolution(dispatcher):
-
+def findsolution(dispatcher, x):
 
     client = pymongo.MongoClient("mongodb://localhost:27017/")
     db = client["rasa"]
@@ -270,7 +274,9 @@ def findsolution(dispatcher):
                                   'ELEMENT', 'MOID', 'solution']].values.tolist()
     for col in selected_columns:
         if col[4] != '':
-            dispatcher.utter_message(col[0]+" - "+col[1]+" : \n"+col[4]+" - ")
+            if (x == 0):
+                dispatcher.utter_message(
+                    col[0]+" - "+col[1]+" : \n"+col[4]+" - ")
 
 
 # the reset all slots action
@@ -285,7 +291,7 @@ class ActionProblemSolve(Action):
         # file_path = os.path.join(os.path.dirname(__file__), 'LteParams.xlsx')
         # params = pd.read_excel(file_path)
         # retrieve all documents from the collection
-        findsolution(dispatcher)
+        findsolution(dispatcher, 0)
         return {}
 
 # the reset all slots action
@@ -298,8 +304,6 @@ class ActionProblemSolveML(Action):
     def run(self, dispatcher: CollectingDispatcher,
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        import pandas as pd
-        import pymongo
         # retrieve all documents from the collection
         client = pymongo.MongoClient("mongodb://localhost:27017/")
         db = client["rasa"]
@@ -345,48 +349,46 @@ class ActionProblemSolveML(Action):
         s = []
         for j in range(len(df)):
             s.append('')
-        solution = []
-        sol = ""
-        solist = []
-        # Determine a solution to the problems
-        next = ""
+        solution=[]
+        sol=""
+        solist=[]
+        #Determine a solution to the problems
+        next=""   
         for i in range(len(df)):
             for col in df.columns:
-                if df[col][i] == False:
+                if df[col][i]==False:
                     if "resultat" in col:
-                        solist = []
-                        x = col.replace("resultat ", "")
-                        my_string = ''
+                        solist=[] 
+                        x=col.replace("resultat ","")
+                        my_string=''
                         for param in paramlist:
-                            if param[0] == x:
-                                next = param[1]
-                            if next != "":
+                            if param[0]==x:
+                                next=param[1]
+                            if next!="" :
                                 for y in next.split(","):
-                                    if y == param[0]:
+                                    if y==param[0]:
                                         if param[2] not in solution:
-                                            solution.append(param[2])
+                                            solution.append(param[2])              
                         my_string = ' '.join(solution)
-                        my_string = 'for '+x+' : '+my_string
+                        my_string='for '+x+' : '+my_string 
                         if my_string not in solution:
                             solist.append(my_string)
-                        sol = ''.join(solist)
+                        sol=''.join(solist)
                         if sol not in s[i]:
-                            s[i] = s[i]+sol+' ;\n '
-                        next = ""
-        dfknn = df.iloc[:, 9:12]
-        # Convert boolean columns to numeric (0 or 1)
-        dfknn['resultat HandoverExecutionFailure'] = dfknn['resultat HandoverExecutionFailure'].astype(
-            int)
-        dfknn['resultat MCPCparams'] = dfknn['resultat MCPCparams'].astype(int)
-        # Repeat each row 3 times
+                            s[i]=s[i]+sol+' ;\n '
+                        next=""
+        df['solution']=s
+        # Keep only columns with 'result' or 'solution' in their names
+        filtered_columns = [col for col in df.columns if 'resultat' in col or 'solution' in col]
+        dfknn = df[filtered_columns]                    
+        # # Convert boolean columns to numeric (0 or 1)
+        for x in df.columns:
+            if "resultat" in x:
+                dfknn[x] = dfknn[x].astype(int)
+        # # Repeat each row 3 times
         dfknn = dfknn.loc[df.index.repeat(4)].reset_index(drop=True)
-        solution = dfknn['solution']
-        dfknn = dfknn.drop('solution', axis=1)
-        # We used pmHoExeSucc, pmHoExeAtt, pmCriticalBorderEvalReport, and pmBadCovSearchEvalReport as features. using iloc
-        from sklearn.model_selection import train_test_split
-        from sklearn.preprocessing import StandardScaler
-        from sklearn.neighbors import KNeighborsClassifier
-        from sklearn.metrics import accuracy_score
+        solution=dfknn['solution']
+        dfknn= dfknn.drop('solution', axis=1)
 
         # Split the data into training and testing sets
         X_train, X_test, y_train, y_test = train_test_split(
@@ -394,8 +396,8 @@ class ActionProblemSolveML(Action):
 
         # Scale the data using StandardScaler
         scaler = StandardScaler()
-        X_train_scaled = scaler.fit_transform(X_train)
-        X_test_scaled = scaler.transform(X_test)
+        # X_train_scaled = scaler.fit_transform(X_train)
+        # X_test_scaled = scaler.transform(X_test)
 
         # Train a KNN classifier
         knn = KNeighborsClassifier(n_neighbors=5)
@@ -403,7 +405,33 @@ class ActionProblemSolveML(Action):
 
         # Make predictions on the test set
         y_pred = knn.predict(X_test)
+        # Get the current time and calculate the time an hour ago
+        now = datetime.now()
+        one_hour_ago  = datetime.now() - timedelta(hours=3)
+        filter_df = df[df['created_at'] > one_hour_ago]
+        # Keep only columns with 'result' in their names
+        filtered_columns = [col for col in filter_df.columns if 'resultat' in col]
+        filtered_df = filter_df[filtered_columns]
+        results=knn.predict(filtered_df)
+        filter_df['solution']=results
+        print(filter_df)
+        # Define a function to convert a row to a string
+        def row_to_string(row):
+            return ', '.join(row.astype(str))
+        # filter by the "id" and "created_at" columns
+        if filter_df.empty:
+            dispatcher.utter_message("no values added in the last hour")
+        strings = filter_df.apply(row_to_string, axis=1)
+        # Print the resulting strings
+        
+        # create a string of all columns in the dataframe
+        cols_str = ', '.join(df.columns)
 
+        # print the string
+        dispatcher.utter_message(cols_str)
+        for index, row_string in strings.items():
+             dispatcher.utter_message("Row "+str(index+1)+":"+ row_string)
         # Evaluate the accuracy of the classifier
         accuracy = accuracy_score(y_test, y_pred)
-        print('Accuracy:', accuracy)
+        dispatcher.utter_message('Accuracy: ', str(accuracy))
+        return{}

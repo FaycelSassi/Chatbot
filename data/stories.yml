@@ -49,7 +49,7 @@ stories:
   - intent: greet
   - action: utter_greet
   - intent: inform_problem_ML
-  - action: action_problem_solve
+  - action: action_problem_solve_ML
 
 
 - story: interactive_story_1

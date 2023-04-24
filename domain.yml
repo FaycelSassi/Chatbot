@@ -10,6 +10,7 @@ intents:
 - deny
 - goodbye
 - inform_problem
+- inform_problem_ML
 - greet
 - inform_about_reseau_phy
 - ask_for_reseau_phy
@@ -61,6 +62,7 @@ actions:
 - inform_problem_ML
 - utter_resea_phy_slots
 - action_problem_solve
+- action_problem_solve_ML
 
 responses:
   utter_greet:
