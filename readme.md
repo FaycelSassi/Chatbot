@@ -6,6 +6,6 @@
 # Chatbot description:
     An initial version containing greetings, moods and Definitions for tcp 
     to utilize run: 
-    -   rasa init 
+    -   rasa shell 
     and to train run:
     -   rasa interactive
