@@ -7,5 +7,8 @@
     An initial version containing greetings, moods and Definitions for tcp 
     to utilize run: 
     -   rasa shell 
-    and to train run:
+    to train run:
     -   rasa interactive
+    to run as a server run : 
+    -   rasa run --m models --enable-api --cors "*" 
+    
