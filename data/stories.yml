@@ -51,6 +51,14 @@ stories:
   - intent: inform_problem_ML
   - action: action_problem_solve_ML
 
+- story: Make a traffic prediction
+  steps: 
+  - intent: greet
+  - action: utter_greet
+  - intent: predict_traffic_ML
+    entities:
+      - site: 4G_Ain_Boumorra
+  - action: action_predict_traffic_ML
 
 - story: interactive_story_1
   steps:
@@ -58,7 +66,6 @@ stories:
   - action: utter_greet
   - intent: inform_about_reseau_phy
   - action: action_site_info
-  - action: action_reset_all_slots
 
 - story: add_physical_network 
   steps: 

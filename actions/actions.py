@@ -1,7 +1,11 @@
 import datetime as dt
 from typing import Any, Text, Dict, List
 import pymongo
+import re
+from io import BytesIO
+import base64
 import numpy as np
+from scipy import stats
 import json
 from datetime import datetime, timedelta
 import pandas as pd
@@ -10,6 +14,15 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score
 import os
+import matplotlib.pyplot as plt
+import math
+from sklearn.metrics import mean_squared_error, r2_score
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM, Flatten
+from sklearn.preprocessing import MinMaxScaler
+#from keras.callbacks import EarlyStopping
+from keras.layers import ConvLSTM2D
 from rasa_sdk import Action, Tracker, FormValidationAction
 from rasa_sdk.executor import CollectingDispatcher
 from rasa_sdk.types import DomainDict
@@ -48,6 +61,8 @@ def autocorrect(word, coll, search):
     if search == 2:
         fields = ['BSC', 'Bande de fréquences', 'Gouvernorat', 'Site', 'Site_Code',
                   "Type d'Installation", 'Longitude', 'Latitude', 'LAC', 'Identifiant']
+    if search==3:
+        fields = ['ERBS Id']
     distances = []
     dbs = set()
     cursor = coll.find({})
@@ -189,7 +204,7 @@ class ActionSiteInfo(Action):
                     return {}
 
 
-def findsolution(dispatcher, x):
+def findsolution(dispatcher,x):
 
     client = pymongo.MongoClient("mongodb://localhost:27017/")
     db = client["rasa"]
@@ -197,7 +212,6 @@ def findsolution(dispatcher, x):
     data = list(collection.find())
     # create a Pandas DataFrame from the list of dictionaries
     Xdf = pd.DataFrame(data)
-    print(Xdf)
     if Xdf.empty:
         dispatcher.utter_message("please add data to the database")
         return {}
@@ -210,6 +224,7 @@ def findsolution(dispatcher, x):
     # retrieve documents with specified columns
     documents = collection.find({})
     df = pd.DataFrame(list(documents))
+    # print(df)
     k = 0
     j = 0
     for param in paramlist:
@@ -274,9 +289,11 @@ def findsolution(dispatcher, x):
                                   'ELEMENT', 'MOID', 'solution']].values.tolist()
     for col in selected_columns:
         if col[4] != '':
-            if (x == 0):
-                dispatcher.utter_message(
+            print(col[1])
+            dispatcher.utter_message(
                     col[0]+" - "+col[1]+" : \n"+col[4]+" - ")
+
+
 
 
 # the reset all slots action
@@ -291,7 +308,7 @@ class ActionProblemSolve(Action):
         # file_path = os.path.join(os.path.dirname(__file__), 'LteParams.xlsx')
         # params = pd.read_excel(file_path)
         # retrieve all documents from the collection
-        findsolution(dispatcher, 0)
+        findsolution(dispatcher,0)
         return {}
 
 # the reset all slots action
@@ -435,3 +452,142 @@ class ActionProblemSolveML(Action):
         accuracy = accuracy_score(y_test, y_pred)
         dispatcher.utter_message('Accuracy: ', str(accuracy))
         return{}
+    
+class ActionPredictTraffic(Action):
+    def name(self):
+        return "action_predict_traffic_ML"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        client = pymongo.MongoClient("mongodb://localhost:27017/")
+        db = client["rasa"]
+        collection = db["Traffic"]
+        msg=tracker.latest_message.get("text")
+        delimiters = ["for", "of"]
+        regex_pattern = '|'.join(map(re.escape, delimiters))
+        split_string = re.split(regex_pattern, msg)[1]
+        split_string='4G'+split_string
+        site=autocorrect(split_string,collection,3)
+        print(site)
+        dispatcher.utter_message("Predictions for : "+site)
+
+        # Connect to MongoDB
+        client = pymongo.MongoClient("mongodb://localhost:27017/")
+        db = client["rasa"]
+
+        # Create a new collection
+        mycol = db["Traffic"]
+
+        # Retrieve all data from the collection
+        data = mycol.find()
+
+        result_traffic= pd.DataFrame(list(data))
+        site_data = result_traffic[result_traffic['ERBS Id'] == site]
+        data_to_sum = site_data[['Date', 'Hour','Trafic PS (Gb)']]
+        grouped_data = data_to_sum.groupby(['Date', 'Hour']).sum()
+        # group data by date and time_type
+        grouped_data=grouped_data.reset_index('Hour')
+        grouped_data=grouped_data.drop("Hour",axis=1)
+
+        grouped_data = grouped_data[(np.abs(stats.zscore(grouped_data['Trafic PS (Gb)'])) < 3)]
+                #Convert pandas dataframe to numpy array
+        dataset = grouped_data.values
+        scaler = MinMaxScaler(feature_range=(0, 1))
+        dataset = scaler.fit_transform(dataset)
+        train_size = int(len(dataset) * 0.66)
+        test_size = len(dataset) - train_size
+        train, test = dataset[0:train_size,:], dataset[train_size:len(dataset),:]
+        #creates a dataset where X is the number of passengers at a given time (t, t-1, t-2...) 
+        #and Y is the number of passengers at the next time (t + 1).
+
+        def to_sequences(dataset, seq_size=1):
+            x = []
+            y = []
+
+            for i in range(len(dataset)-seq_size-1):
+                #print(i)
+                window = dataset[i:(i+seq_size), 0]
+                x.append(window)
+                y.append(dataset[i+seq_size, 0])
+                
+            return np.array(x),np.array(y)
+            
+
+        seq_size = 120  # Number of time steps to look back 
+        #Larger sequences (look further back) may improve forecasting.
+
+        trainX, trainY = to_sequences(train, seq_size)
+        testX, testY = to_sequences(test, seq_size)
+
+
+
+        print("Shape of training set: {}".format(trainX.shape))
+        print("Shape of test set: {}".format(testX.shape))
+        trainX = trainX.reshape((trainX.shape[0], 1, 1, 1, seq_size))
+        testX = testX.reshape((testX.shape[0], 1, 1, 1, seq_size))
+
+        model = Sequential()
+        model.add(ConvLSTM2D(filters=64, kernel_size=(1,1), activation='relu', input_shape=(1, 1, 1, seq_size)))
+        model.add(Flatten())
+        model.add(Dense(1))
+        model.add(Dense(32))
+        model.add(Dense(1))
+        model.add(Dense(32))
+        model.add(Dense(1))
+        model.add(Flatten())
+        model.compile(optimizer='Nadam', loss='mean_squared_error')
+        print(model.summary())
+        model.fit(trainX, trainY, validation_data=(testX, testY),
+          verbose=2, epochs=50)
+
+        # make predictions
+
+        trainPredict = model.predict(trainX)
+        testPredict = model.predict(testX)
+        # invert predictions back to prescaled values
+        #This is to compare with original input values
+        #SInce we used minmaxscaler we can now use scaler.inverse_transform
+        #to invert the transformation.
+        trainPredict = scaler.inverse_transform(trainPredict)
+        trainY = scaler.inverse_transform([trainY])
+        testPredict = scaler.inverse_transform(testPredict)
+        testY = scaler.inverse_transform([testY])
+
+        # calculate root mean squared error
+        trainScore = math.sqrt(mean_squared_error(trainY[0], trainPredict[:,0]))
+        print('Train Score: %.2f RMSE' % (trainScore))
+        dispatcher.utter_message('Train Score par RMSE: '+str(trainScore))
+        testScore = math.sqrt(mean_squared_error(testY[0], testPredict[:,0]))
+        print('Test Score: %.2f RMSE' % (testScore))
+        dispatcher.utter_message('Test Score par RMSE: ' + str(testScore))
+        r2 = r2_score(testY[0], testPredict[:,0])
+        print('R2 score:', r2)
+        dispatcher.utter_message('R2 score: '+ str(r2))
+        # shift train predictions for plotting
+        #we must shift the predictions so that they align on the x-axis with the original dataset. 
+        trainPredictPlot = np.empty_like(dataset)
+        trainPredictPlot[:, :] = np.nan
+        trainPredictPlot[seq_size:len(trainPredict)+seq_size, :] = trainPredict
+
+        # shift test predictions for plotting
+        testPredictPlot = np.empty_like(dataset)
+        testPredictPlot[:, :] = np.nan
+        testPredictPlot[len(trainPredict)+(seq_size*2)+1:len(dataset)-1, :] = testPredict
+
+        # plot baseline and predictions
+        plt.figure(figsize=(20,10))
+        plt.plot(scaler.inverse_transform(dataset))
+        plt.plot(trainPredictPlot)
+        plt.plot(testPredictPlot)
+        plt.legend(['Data', 'Train Predict result', 'Test Predict result'])
+        # Save the plot to a temporary buffer
+        buf = BytesIO()
+        plt.savefig(buf, format='png')
+        buf.seek(0)
+
+        # Encode the image as base64
+        image = base64.b64encode(buf.read()).decode('utf-8')
+
+        # Send the image using the dispatcher
+        dispatcher.utter_message(image=f"data:image/png;base64,{image}")

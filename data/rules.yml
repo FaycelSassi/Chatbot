@@ -12,6 +12,10 @@ rules:
   - intent: bot_challenge
   - action: utter_iamabot
 
+- rule: Send site 
+  steps:
+  - intent: predict_traffic_ML
+  - action: action_predict_traffic_ML
 
 # - rule: Activate def form
 #   steps:

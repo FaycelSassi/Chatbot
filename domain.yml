@@ -11,6 +11,7 @@ intents:
 - goodbye
 - inform_problem
 - inform_problem_ML
+- predict_traffic_ML
 - greet
 - inform_about_reseau_phy
 - ask_for_reseau_phy
@@ -40,14 +41,7 @@ slots:
     mappings:
     - type: from_entity
       entity: site
-forms:
-  #form for asking for a defintion
-  # def_form:
-  #   required_slots:
-  #   - definition
-  reseau_phy_form:
-    required_slots:
-      - site
+
 
 actions:
 - Action_Validate_feature
@@ -60,13 +54,15 @@ actions:
 - utter_ask_def
 - utter_happy
 - inform_problem_ML
-- utter_resea_phy_slots
+- utter_reseau_phy_slots
 - action_problem_solve
 - action_problem_solve_ML
+- action_predict_traffic_ML
 
 responses:
   utter_greet:
   - text: Hey I'm TTBot! How can i help you?
+  - text: Hey there, is there something i can help you with?
   utter_did_that_help:
   - text: Did that help you?
   utter_ask_def:
@@ -83,7 +79,7 @@ responses:
   - text: Definition added.
   utter_ask_term:
   - text: what's the term you'd like to add.
-  utter_resea_phy_slots:
+  utter_reseau_phy_slots:
   - text: that was the info for {site}.
   utter_ask_site:
   - text: What's the site you're asking about?

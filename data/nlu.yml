@@ -160,4 +160,16 @@ nlu:
     - check counters by knn
     - find solutions to counters with knn
 
-
+- intent: predict_traffic_ML
+  examples: |
+    - make traffic prediction for [Ain_Boumorra] (site)
+    - predict traffic for [BOUHAJLA_REP] (site)
+    - Can you give me a prediction for the [Ain_Boumorra] (site)
+    - "What will traffic look like for [Chrichira] (site)
+    - Can you predict how much traffic it will get in [ElJem] (site)?"
+    
+- lookup: site
+  examples: |
+    - Ain_Boumorra
+    - BOUHAJLA_REP
+    - Chrichira
