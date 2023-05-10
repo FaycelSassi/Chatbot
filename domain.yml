@@ -8,6 +8,8 @@ intents:
 - give_full_definition
 - bot_challenge
 - deny
+- Site_Solution_Ask
+- Site_Questions
 - goodbye
 - inform_problem
 - inform_problem_ML
@@ -53,6 +55,8 @@ actions:
 - utter_greet
 - utter_ask_def
 - utter_happy
+- action_Site_Problem
+- action_Info_Problem
 - inform_problem_ML
 - utter_reseau_phy_slots
 - action_problem_solve
@@ -71,6 +75,7 @@ responses:
   - text: want an another definition?
   utter_happy:
   - text: Great, hope that helped!
+  - text: Is there something else i can help you with?
   utter_goodbye:
   - text: Bye
   utter_iamabot:

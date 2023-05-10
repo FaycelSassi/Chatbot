@@ -43,13 +43,26 @@ stories:
   - action: utter_greet
   - intent: inform_problem
   - action: action_problem_solve
+  - intent: affirm
+  - action: action_Info_Problem
 
-- story: validating counter values with ml
+- story: validating counter values 2
   steps: 
   - intent: greet
   - action: utter_greet
-  - intent: inform_problem_ML
-  - action: action_problem_solve_ML
+  - intent: inform_problem
+  - action: action_problem_solve
+  - intent: deny
+  - action: utter_happy
+
+- story: check counter solutions
+  steps: 
+  - intent: greet
+  - action: utter_greet
+  - intent: Site_Solution_Ask
+  - action: action_Site_Problem
+  - intent: Site_Questions
+  - action: utter_reseau_phy_slots
 
 - story: Make a traffic prediction
   steps: 
@@ -66,6 +79,8 @@ stories:
   - action: utter_greet
   - intent: inform_about_reseau_phy
   - action: action_site_info
+  - intent: Site_Questions
+  - action: utter_reseau_phy_slots
 
 - story: add_physical_network 
   steps: 
