@@ -99,8 +99,9 @@ nlu:
     - i want some infos 
     - give me infos
     - i'd like to know about a site
-    - i want information about a site
+    - i want information on a site
     - can i ask about site
+    - Give me sites with the governorate
     - Give me all sites with this langtitude 
     - Give me all sites with this langtitude 
     - what are the sites with azimut du rayonnement
