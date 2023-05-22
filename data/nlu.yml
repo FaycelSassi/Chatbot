@@ -129,37 +129,18 @@ nlu:
     - latitude 10,2292
     - HBA 27,5
     - Sites in Mahdia
-#adding a new réseau physique
-- intent: add_phy_net
-  examples: |
-    - can i add a physical network 
-    - i'd like to add a physical network
-    - add a physical network
-    - i want to physical network
 
-#adding a new feature
-- intent: ask_add_feature
-  examples: |
-    - can i add a feature 
-    - i'd like to add a feature
-    - add a feature
-    - i want to add a feature
 #help solve a problem intent
 - intent: inform_problem
   examples: |
     - check counters
+    - What steps should I follow to diagnose and resolve counter errors
+    - How can I address counter issues or abnormalities
+    - What tools or techniques can I use to debug counter related issues
     - validate kpis
     - validate counters
     - check counters
     - find solutions to counters
-#help solve a problem intent
-- intent: inform_problem_ML
-  examples: |
-    - using knn check counters
-    - validate kpis with ML
-    - validate counters using a random algorithm
-    - check counters by knn
-    - find solutions to counters with knn
 
 - intent: predict_traffic_ML
   examples: |
@@ -184,16 +165,22 @@ nlu:
     
 - intent: Site_Classify_Ask
   examples: |
-    - What are least performant sites
     - what are sites with low performance
     - what are the sites with an average performance
     - what are sites with a normal performance
     - the best performant Sites
     - sites with a good performance
+    - Can you provide a list of sites that have low performance?
+    - Which sites have an average performance
+    - Could you suggest the best performing sites
+    - Do you know any sites that demonstrate good performance
     
 - intent: Site_Solution_Ask
   examples: |
     - give me solution for [Ain_Boumorra] (site)
+    - What are some strategies to improve [BOUHAJLA_REP] (site)?
+    - How can I optimize the solution [BOUHAJLA_REP] (site)?
+    - What steps can I take to enhance the responsiveness of a [Ain_Boumorra] (site)?
     - what are the solutions for [BOUHAJLA_REP] (site)
     - Can you give me a solutions for the [Ain_Boumorra] (site)
     - What is wrong with [Chrichira] (site)
