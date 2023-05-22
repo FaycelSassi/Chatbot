@@ -155,6 +155,7 @@ class ValidateDefForm(Action):
                 if autocorrect(x.upper(), collection, search) != None:
                     if autocorrect(x, collection, search) != "none":
                         slot_value = autocorrect(x, collection, search)
+            print(slot_value)
             if slot_value == "none":
                 dispatcher.utter_message(
                     "Can you please write the term that you're looking for again")
@@ -214,7 +215,6 @@ class ActionSiteInfo(Action):
         self, dispatcher: CollectingDispatcher, tracker: Tracker, domain: Dict
     ) -> list[Dict[Text, Any]]:
         slot_values = tracker.latest_message.get("text")
-        print(slot_values)
         search = 2
         aff = "Sorry, physical is yet to be added"
         if slot_values == None:
@@ -234,8 +234,8 @@ class ActionSiteInfo(Action):
                 dispatcher.utter_message("Physical network can't be found")
                 return {}
             else:
-                documents = collection.find({"$or": [{"Site": slot_value.upper()},
-                                                     {"Site_Code": slot_value.upper()}, {"Identifiant": slot_value.upper()}, {"BSC": slot_value.upper()}, {"Bande de fréquences": slot_value.upper()}, {"Gouvernorat": slot_value.upper()}, {"HBA(m)": slot_value.upper()}, {"LAC": slot_value.upper()}, {"Latitude": slot_value.upper()}, {"Longitude": slot_value.upper()}, {"Puissance isotrope rayonnée équivalente (PIRE) dans chaque secteur": slot_value.upper()}, {"Secteur": slot_value.upper()}, {"Type d'Installation": slot_value.upper()}, {"azimut du rayonnement maximum dans chaque secteur": slot_value.upper()}]})
+                documents = collection.find({"$or": [{"Site": slot_value},
+                                                     {"Site_Code": slot_value}, {"Identifiant": slot_value}, {"BSC": slot_value}, {"Bande de fréquences": slot_value}, {"Gouvernorat": slot_value}, {"HBA(m)": slot_value}, {"LAC": slot_value}, {"Latitude": slot_value}, {"Longitude": slot_value}, {"Puissance isotrope rayonnée équivalente (PIRE) dans chaque secteur": slot_value}, {"Secteur": slot_value}, {"Type d'Installation": slot_value}, {"azimut du rayonnement maximum dans chaque secteur": slot_value}]})
                 print(documents)
                 if documents != None:
                     i = 0
