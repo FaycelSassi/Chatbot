@@ -64,6 +64,14 @@ stories:
   - intent: Site_Questions
   - action: utter_reseau_phy_slots
 
+- story: check counter solutions
+  steps: 
+  - intent: greet
+  - action: utter_greet
+  - intent: Site_Classify_Ask
+  - action: action_classify_site_ML
+
+
 - story: Make a traffic prediction
   steps: 
   - intent: greet

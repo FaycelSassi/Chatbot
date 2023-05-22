@@ -66,7 +66,7 @@ def autocorrect(input_word, coll,search,k=1):
     if search == 1:
         fields = ['abbrv', 'fullname']
     if search == 2:
-        fields = ['BSC', 'Bande de fréquences', 'Gouvernorat', 'Site', 'Site_Code',
+        fields = ['Gouvernorat', 'Site', 'Site_Code',
                   "Type d'Installation", 'Longitude', 'Latitude', 'LAC', 'Identifiant']
     cursor = coll.find({})
     distances = []
@@ -75,7 +75,7 @@ def autocorrect(input_word, coll,search,k=1):
         for document in cursor:
             for field in fields:
                 if field in document:
-                    word_list = set(document[field].split())
+                    word_list = set(str(document[field]).split())
                     dbs.update(word_list)
         # Get the list of similar words with their similarity score
         similar_words = [(w, get_simularity(input_word, w)) for w in dbs]
@@ -239,11 +239,10 @@ class ActionSiteInfo(Action):
                     aff = ""
                     for document in documents:
                         i += 1
-                        aff += str(i)+" - "+document['Site']+" : " + document['Identifiant']+" : " + \
-                            document['Site_Code']+" : " + document['LAC'] + \
-                            " : " + document['Bande de fréquences']+"\n"
-                    print(aff)
-                    dispatcher.utter_message(aff)
+                        # Remove the _id field from the document.
+                        document = {**document, "_id": None}
+                        aff = str(document)
+                        dispatcher.utter_message(aff)
                     dispatcher.utter_message(
                         "the number of sites with "+slot_value+" is "+str(i))
                     return {}
@@ -292,7 +291,7 @@ def findsolution(dispatcher,x):
                 if k == 1:
                     i = param[4]
                     i = [s.replace(' ', '') for s in i]
-                    if (i[0]in df.columns) :
+                    if (i[0] in df.columns) :
                         j += 1
                         result = df.eval(param[3])
                         df["resultat "+param[0]] = result
@@ -306,7 +305,7 @@ def findsolution(dispatcher,x):
     next = ""
     for i in range(len(df)):
         for col in df.columns:
-            if df[col][i] == True:
+            if df[col][i] == False:
                 if "resultat" in col:
                     solist = []
                     x = col.replace("resultat ", "")
@@ -329,7 +328,7 @@ def findsolution(dispatcher,x):
                     next = ""
     df['solution'] = s
     # select columns A and C by name using loc, and convert to a list
-    selected_columns = df.loc[:, ['ERBS Id', 'solution']].values.tolist()
+    selected_columns = df.loc[:, ['ERBSId', 'solution']].values.tolist()
     i=0
     s=[]
     for col in selected_columns:
@@ -340,7 +339,7 @@ def findsolution(dispatcher,x):
     dispatcher.utter_message("there are problems in "+str(i)+" sites : "+my_string)
     j=0
     s=df['solution']
-    id=df['ERBS Id']
+    id=df['ERBSId']
     for i in id:
         collection.update_many(
                 {'ERBS Id':i},
@@ -426,6 +425,56 @@ class ActionSiteProblem(Action):
         else:  
             dispatcher.utter_message('please verify input')
             return [SlotSet("site", site)] 
+
+
+class ActionClassifySiteML(Action):
+    def name(self):
+        return "action_classify_site_ML"
+
+    def run(self, dispatcher: CollectingDispatcher,
+            tracker: Tracker,
+            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+
+        client = pymongo.MongoClient("mongodb://localhost:27017/")
+        db = client["rasa"]
+        collection = db["Traffic"]
+        data = list(collection.find())
+        # create a Pandas DataFrame from the list of dictionaries
+        result_traffic = pd.DataFrame(data)
+        df=result_traffic.groupby('ERBS Id').sum()
+        df=df.sort_values('Trafic PS (Gb)')
+        df=df.reindex()
+        X = df[['Trafic PS (Gb)']].values
+            
+        # Create a KMeans model with 3 clusters
+        model = KMeans(n_clusters=3)
+
+        # Fit the model to the data
+        model.fit(X)
+
+        # Get the cluster labels
+        labels = model.labels_
+        df['cluster'] = labels
+        # Calculate mean for each cluster
+        cluster_stats = df.groupby('cluster')['Trafic PS (Gb)'].mean()
+
+        # Create a dictionary to map old cluster labels to new ones
+        label_map = dict(zip(cluster_stats.sort_values().index, range(3)))
+
+        # Use the dictionary to map the old labels to the new ones
+        df['cluster'] = df['cluster'].map(label_map)
+        # Map the cluster labels to performance levels
+        df['performance'] = df['cluster'].map({0: 'low', 1: 'normal',2: 'good',3:'very good'})
+        df = df.sort_values('performance', key=lambda x: x.map({'low': 0, 'normal': 1, 'good': 2,'very good':3}))
+        # df = df.sort_values("Trafic PS (Gb)")
+        # Plot the data with clusters highlighted
+        plt.figure(figsize=(20,10))
+        plt.title('the Kmean applied on the traffic data')
+        plt.scatter(df['performance'],df['Trafic PS (Gb)'])
+        plt.xlabel('performance')
+        plt.ylabel('Trafic')
+        plt.show()
+        return{}
 
 class ActionProblemSolveML(Action):
     def name(self):

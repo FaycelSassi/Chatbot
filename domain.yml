@@ -57,6 +57,7 @@ actions:
 - utter_happy
 - action_Site_Problem
 - action_Info_Problem
+- action_classify_site_ML
 - inform_problem_ML
 - utter_reseau_phy_slots
 - action_problem_solve

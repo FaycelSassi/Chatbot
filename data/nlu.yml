@@ -182,6 +182,15 @@ nlu:
     - that was the prediction for what site
     - what site
     
+- intent: Site_Classify_Ask
+  examples: |
+    - What are least performant sites
+    - what are sites with low performance
+    - what are the sites with an average performance
+    - what are sites with a normal performance
+    - the best performant Sites
+    - sites with a good performance
+    
 - intent: Site_Solution_Ask
   examples: |
     - give me solution for [Ain_Boumorra] (site)
