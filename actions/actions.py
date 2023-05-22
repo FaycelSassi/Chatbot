@@ -2,10 +2,13 @@ import datetime as dt
 from typing import Any, Text, Dict, List
 import pymongo
 import re
+from sklearn.cluster import KMeans
 from io import BytesIO
 import base64
 import numpy as np
 import difflib
+import nltk
+from nltk.sentiment import SentimentIntensityAnalyzer
 import numpy as np
 from scipy import stats
 from pymongo import MongoClient, UpdateOne
@@ -425,7 +428,16 @@ class ActionSiteProblem(Action):
         else:  
             dispatcher.utter_message('please verify input')
             return [SlotSet("site", site)] 
-
+        
+sia = SentimentIntensityAnalyzer()
+def sentiment_analysis(sentence):
+            sentiment = sia.polarity_scores(sentence)
+            if sentiment['compound'] > 0.05:
+                return 'good'
+            elif sentiment['compound'] < -0.05:
+                return 'low'
+            else:
+                return 'normal'
 
 class ActionClassifySiteML(Action):
     def name(self):
@@ -434,6 +446,13 @@ class ActionClassifySiteML(Action):
     def run(self, dispatcher: CollectingDispatcher,
             tracker: Tracker,
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
+        
+
+        nltk.download('vader_lexicon')
+        sia = SentimentIntensityAnalyzer()
+        sentence=tracker.latest_message.get("text")
+        result = sentiment_analysis(sentence)
+        print(result)
 
         client = pymongo.MongoClient("mongodb://localhost:27017/")
         db = client["rasa"]
@@ -441,6 +460,7 @@ class ActionClassifySiteML(Action):
         data = list(collection.find())
         # create a Pandas DataFrame from the list of dictionaries
         result_traffic = pd.DataFrame(data)
+        result_traffic=result_traffic.drop(['Hour','_id','EUtranCell Id','Date'],axis=1)
         df=result_traffic.groupby('ERBS Id').sum()
         df=df.sort_values('Trafic PS (Gb)')
         df=df.reindex()
@@ -466,14 +486,16 @@ class ActionClassifySiteML(Action):
         # Map the cluster labels to performance levels
         df['performance'] = df['cluster'].map({0: 'low', 1: 'normal',2: 'good',3:'very good'})
         df = df.sort_values('performance', key=lambda x: x.map({'low': 0, 'normal': 1, 'good': 2,'very good':3}))
-        # df = df.sort_values("Trafic PS (Gb)")
-        # Plot the data with clusters highlighted
-        plt.figure(figsize=(20,10))
-        plt.title('the Kmean applied on the traffic data')
-        plt.scatter(df['performance'],df['Trafic PS (Gb)'])
-        plt.xlabel('performance')
-        plt.ylabel('Trafic')
-        plt.show()
+        
+        
+        # Filter the dataframe to include only rows where performance equals "good"
+        filtered_df = df[df['performance'] == result]
+        filtered_df =filtered_df.reset_index('ERBS Id')
+        name_string = filtered_df['ERBS Id'].to_string(index=False)
+
+        print(name_string)
+
+        dispatcher.utter_message(name_string)
         return{}
 
 class ActionProblemSolveML(Action):

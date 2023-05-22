@@ -8,6 +8,7 @@ intents:
 - give_full_definition
 - bot_challenge
 - deny
+- Site_Classify_Ask
 - Site_Solution_Ask
 - Site_Questions
 - goodbye

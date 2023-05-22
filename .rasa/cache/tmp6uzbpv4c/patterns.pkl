@@ -1,6 +1,0 @@
-[
-  {
-    "name": "site",
-    "pattern": "(\\bAin_Boumorra\\b|\\bBOUHAJLA_REP\\b|\\bChrichira\\b|\\bAin_Boumorra\\b|\\bBOUHAJLA_REP\\b|\\bChrichira\\b)"
-  }
-]
