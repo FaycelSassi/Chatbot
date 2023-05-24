@@ -319,7 +319,7 @@ def findsolution(dispatcher,x):
                         s[i] = s[i]+sol+' ;\n '
                     next = ""
     df['solution'] = s
-    # select columns A and C by name using loc, and convert to a list
+    # select columns ERBSId and solution by name using loc, and convert to a list
     selected_columns = df.loc[:, ['ERBSId', 'solution']].values.tolist()
     i=0
     s=[]
@@ -328,6 +328,12 @@ def findsolution(dispatcher,x):
             i+=1
             s.append(col[0])
     my_string = ' , '.join(s) 
+    solution=df[df['solution']!='']
+    # Create a new folder on the desktop
+    folder_path = os.path.join(os.path.expanduser("~"), "Desktop", "save folder")
+    os.makedirs(folder_path, exist_ok=True)
+    # Save the DataFrame as a CSV file in the new folder.
+    selected_df.to_csv(os.path.join(folder_path, 'KPI_validation_result.csv'), index=False)
     dispatcher.utter_message("there are problems in "+str(i)+" sites : "+my_string)
     j=0
     s=df['solution']
