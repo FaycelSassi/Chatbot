@@ -100,37 +100,6 @@ def autocorrect(input_word, coll,search,k=1):
                 dbs.append(word_list)
     return difflib.get_close_matches(input_word, dbs, n=k)
 
-# def autocorrect(word, coll, search):
-
-#     # This function takes a word and a list of valid words, and returns the closest match to the input word from the list of valid words.
-#     threshold = 0.6
-#     if search == 1:
-#         fields = ['abbrv', 'fullname']
-#     if search == 2:
-#         fields = ['BSC', 'Bande de fréquences', 'Gouvernorat', 'Site', 'Site_Code',
-#                   "Type d'Installation", 'Longitude', 'Latitude', 'LAC', 'Identifiant']
-#     if search==3:
-#         fields = ['ERBS Id']
-#     distances = []
-#     dbs = set()
-#     cursor = coll.find({})
-#     for document in cursor:
-#         for field in fields:
-#             if field in document:
-#                 word_list = set(document[field].split())
-#                 dbs.update(word_list)
-#      # Get the list of similar words with their similarity score
-#     similar_words = [(w, get_simularity(word, w)) for w in dbs]
-
-#     # Find the word with the highest similarity score above the threshold
-#     best_word = max(
-#         similar_words, key=lambda x: x[1] if x[1] >= threshold else -1)
-#     print(best_word)
-#     if best_word[1] < threshold:
-#         return "none"
-#     return best_word[0]
-
- # sending definition
 
 
 class ValidateDefForm(Action):
@@ -169,20 +138,31 @@ class ValidateDefForm(Action):
                 }
                 documents = collection.find(query)
                 # loop through the matching documents and print their fields
-                i = 1
+                i = 0
                 if collection.count_documents(query) > 0:
-                    for document in documents:
-                        aff = str(i) + " - " + document['abbrv'] + " : " + \
-                            document['fullname'] + " " + document['definition']
-                        if document['others'] != "":
-                            aff = str(i) + " - " + document['abbrv'] + " : " + document['fullname'] + \
-                                " " + \
-                                document['definition'] + \
-                                " for more information: " + document['others']
-                        print(aff)
-                        dispatcher.utter_message(aff)
-                        i += 1
-                dispatcher.utter_message(
+                    if documents.count()<=10:
+                        for document in documents:
+                            aff = str(i) + " - " + document['abbrv'] + " : " + \
+                                document['fullname'] + " " + document['definition']
+                            if document['others'] != "":
+                                aff = str(i) + " - " + document['abbrv'] + " : " + document['fullname'] + \
+                                    " " + \
+                                    document['definition'] + \
+                                    " for more information: " + document['others']
+                            print(aff)
+                            dispatcher.utter_message(aff)
+                            i += 1
+                        dispatcher.utter_message(
+                    "number of features found with "+slot_value+" is "+str(i-1))
+                    else: 
+                        aff=[]
+                        i = 1
+                        for document in documents:
+                            aff.apprend(document['abbrv'])
+                            i += 1
+                        my_string = ''.join(aff)
+                        dispatcher.utter_message(my_string)
+                        dispatcher.utter_message(
                     "number of features found with "+slot_value+" is "+str(i-1))
                 return {}
 
@@ -238,16 +218,25 @@ class ActionSiteInfo(Action):
                                                      {"Site_Code": slot_value}, {"Identifiant": slot_value}, {"BSC": slot_value}, {"Bande de fréquences": slot_value}, {"Gouvernorat": slot_value}, {"HBA(m)": slot_value}, {"LAC": slot_value}, {"Latitude": slot_value}, {"Longitude": slot_value}, {"Puissance isotrope rayonnée équivalente (PIRE) dans chaque secteur": slot_value}, {"Secteur": slot_value}, {"Type d'Installation": slot_value}, {"azimut du rayonnement maximum dans chaque secteur": slot_value}]})
                 print(documents)
                 if documents != None:
-                    i = 0
-                    aff = ""
-                    for document in documents:
-                        i += 1
-                        # Remove the _id field from the document.
-                        document = {**document, "_id": None}
-                        aff = str(document)
-                        dispatcher.utter_message(aff)
-                    dispatcher.utter_message(
-                        "the number of sites with "+slot_value+" is "+str(i))
+                    if document.count()<=10:
+                        i = 0
+                        aff = ""
+                        for document in documents:
+                            i += 1
+                            # Remove the _id field from the document.
+                            document = {**document, "_id": None}
+                            aff = str(document)
+                            dispatcher.utter_message(aff)
+                        dispatcher.utter_message(
+                            "the number of sites with "+slot_value+" is "+str(i))
+                    else:
+                        aff=[]
+                        for document in documents:
+                            aff.append(document['Site_Code'])
+                        my_string = ''.join(aff)
+                        dispatcher.utter_message(my_string)
+                        dispatcher.utter_message(
+                            "the number of sites with "+slot_value+" is "+str(i))       
                     return {}
 
 
@@ -460,12 +449,26 @@ class ActionClassifySiteML(Action):
         data = list(collection.find())
         # create a Pandas DataFrame from the list of dictionaries
         result_traffic = pd.DataFrame(data)
+        # Create a new collection
+        mycol = db["KPIs"]
+
+
+        # Retrieve all data from the collection
+        data = mycol.find()
+
+        result= pd.DataFrame(list(data))
         result_traffic=result_traffic.drop(['Hour','_id','EUtranCell Id','Date'],axis=1)
         df=result_traffic.groupby('ERBS Id').sum()
         df=df.sort_values('Trafic PS (Gb)')
         df=df.reindex()
         X = df[['Trafic PS (Gb)']].values
-            
+        result=result.fillna(0)
+        result['Accessibility'] = result[['S1 Sig Succ Rate', 'RRC Setup Succ Rate', 'E-RAB Estab Succ Rate']].mean(axis=1)
+        result = result.drop(['_id','S1 Sig Succ Rate', 'RRC Setup Succ Rate', 'E-RAB Estab Succ Rate'], axis=1)
+        grouped = result.groupby('ERBS Id').mean()
+        grouped_traffic = result_traffic.groupby('ERBS Id').sum()  
+
+        df = pd.concat([grouped, grouped_traffic], axis=1)
         # Create a KMeans model with 3 clusters
         model = KMeans(n_clusters=3)
 
@@ -484,159 +487,26 @@ class ActionClassifySiteML(Action):
         # Use the dictionary to map the old labels to the new ones
         df['cluster'] = df['cluster'].map(label_map)
         # Map the cluster labels to performance levels
-        df['performance'] = df['cluster'].map({0: 'low', 1: 'normal',2: 'good',3:'very good'})
-        df = df.sort_values('performance', key=lambda x: x.map({'low': 0, 'normal': 1, 'good': 2,'very good':3}))
-        
-        
+        df['performance'] = df['cluster'].map({0: 'low', 1: 'normal',2: 'good'})
+        selected_df = df[df['performance'] == result]
+        selected_df=selected_df[(selected_df['Call Drop Rate']<0.5) | (selected_df['Accessibility'] <98)]
+        # Create a new folder on the desktop
+        folder_path = os.path.join(os.path.expanduser("~"), "Desktop", "save folder")
+        os.makedirs(folder_path, exist_ok=True)
+        # Save the DataFrame as a CSV file in the new folder.
+        selected_df.to_csv(os.path.join(folder_path, 'Degraded '+result+' Traffic.csv'), index=False)
         # Filter the dataframe to include only rows where performance equals "good"
-        filtered_df = df[df['performance'] == result]
-        filtered_df =filtered_df.reset_index('ERBS Id')
-        name_string = filtered_df['ERBS Id'].to_string(index=False)
+        selected_df =selected_df.reset_index('ERBS Id')
+        name_string = selected_df['ERBS Id'].to_string(index=False)
 
         print(name_string)
-
+        dispatcher.utter_message("the sites with a "+result+" profitability and a degraded KPI are : ")
         dispatcher.utter_message(name_string)
+        dispatcher.utter_message("the csv file containing the results is in "+ folder_path)
+
         return{}
 
-class ActionProblemSolveML(Action):
-    def name(self):
-        return "action_problem_solve_ML"
 
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker,
-            domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
-        # retrieve all documents from the collection
-        client = pymongo.MongoClient("mongodb://localhost:27017/")
-        db = client["rasa"]
-        collection = db["Chap2"]
-        data = list(collection.find())
-        # create a Pandas DataFrame from the list of dictionaries
-        Xdf = pd.DataFrame(data)
-        Xdf = Xdf.drop('_id', axis=1)
-        paramlist = Xdf.values.tolist()
-        solutionslist = []
-        next = []
-        collection = db['Conteurs']
-        # retrieve documents with specified columns
-        documents = collection.find({})
-        df = pd.DataFrame(list(documents))
-        k = 0
-        j = 0
-        for param in paramlist:
-            param[1] = param[1].replace(' ', '')
-            param[0] = param[0].replace(' ', '')
-            param[2] = param[2].replace(' ', '')
-            if param[2] == 'notready' and param[4] == 'none':
-                next = param[1].split(",")
-            if param[0] in next:
-                if param[4] == 'none' and param[2] != 'notready':
-                    solutionslist.append(param[4])
-                if param[2] == 'notready' and param[4] != 'none':
-                    for x in param[4]:
-                        if x.replace(" ", "") not in df.columns:
-                            print(x + " values not added in database")
-                        else:
-                            k = 1
-                    if k == 1:
-                        i = param[4]
-                        if len(i) == 2:
-                            j += 1
-                            i[0].replace(" ", "")
-                            i[1].replace(" ", "")
-                            result = df.apply(lambda row: eval(param[3], {i[0].replace(" ", ""): row[i[0].replace(
-                                " ", "")], i[1].replace(" ", ""): row[i[1].replace(" ", "")]}), axis=1)
-                            df["resultat "+param[0]] = result
-            # get the names of columns that contain 'resultat'
-        s = []
-        for j in range(len(df)):
-            s.append('')
-        solution=[]
-        sol=""
-        solist=[]
-        #Determine a solution to the problems
-        next=""   
-        for i in range(len(df)):
-            for col in df.columns:
-                if df[col][i]==False:
-                    if "resultat" in col:
-                        solist=[] 
-                        x=col.replace("resultat ","")
-                        my_string=''
-                        for param in paramlist:
-                            if param[0]==x:
-                                next=param[1]
-                            if next!="" :
-                                for y in next.split(","):
-                                    if y==param[0]:
-                                        if param[2] not in solution:
-                                            solution.append(param[2])              
-                        my_string = ' '.join(solution)
-                        my_string='for '+x+' : '+my_string 
-                        if my_string not in solution:
-                            solist.append(my_string)
-                        sol=''.join(solist)
-                        if sol not in s[i]:
-                            s[i]=s[i]+sol+' ;\n '
-                        next=""
-        df['solution']=s
-        # Keep only columns with 'result' or 'solution' in their names
-        filtered_columns = [col for col in df.columns if 'resultat' in col or 'solution' in col]
-        dfknn = df[filtered_columns]                    
-        # # Convert boolean columns to numeric (0 or 1)
-        for x in df.columns:
-            if "resultat" in x:
-                dfknn[x] = dfknn[x].astype(int)
-        # # Repeat each row 3 times
-        dfknn = dfknn.loc[df.index.repeat(4)].reset_index(drop=True)
-        solution=dfknn['solution']
-        dfknn= dfknn.drop('solution', axis=1)
-
-        # Split the data into training and testing sets
-        X_train, X_test, y_train, y_test = train_test_split(
-            dfknn, solution, test_size=0.4, random_state=42)
-
-        # Scale the data using StandardScaler
-        scaler = StandardScaler()
-        # X_train_scaled = scaler.fit_transform(X_train)
-        # X_test_scaled = scaler.transform(X_test)
-
-        # Train a KNN classifier
-        knn = KNeighborsClassifier(n_neighbors=5)
-        knn.fit(X_train, y_train)
-
-        # Make predictions on the test set
-        y_pred = knn.predict(X_test)
-        # Get the current time and calculate the time an hour ago
-        now = datetime.now()
-        one_hour_ago  = datetime.now() - timedelta(hours=3)
-        filter_df = df[df['created_at'] > one_hour_ago]
-        # Keep only columns with 'result' in their names
-        filtered_columns = [col for col in filter_df.columns if 'resultat' in col]
-        filtered_df = filter_df[filtered_columns]
-        results=knn.predict(filtered_df)
-        filter_df['solution']=results
-        print(filter_df)
-        # Define a function to convert a row to a string
-        def row_to_string(row):
-            return ', '.join(row.astype(str))
-        # filter by the "id" and "created_at" columns
-        if filter_df.empty:
-            dispatcher.utter_message("no values added in the last hour")
-        strings = filter_df.apply(row_to_string, axis=1)
-        # Print the resulting strings
-        
-        # create a string of all columns in the dataframe
-        cols_str = ', '.join(df.columns)
-
-        # print the string
-        dispatcher.utter_message(cols_str)
-        for index, row_string in strings.items():
-             dispatcher.utter_message("Row "+str(index+1)+":"+ row_string)
-        # Evaluate the accuracy of the classifier
-        accuracy = accuracy_score(y_test, y_pred)
-        dispatcher.utter_message('Accuracy: ', str(accuracy))
-        return{}
-    
 class ActionPredictTraffic(Action):
     def name(self):
         return "action_predict_traffic_ML"

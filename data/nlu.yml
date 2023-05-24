@@ -165,15 +165,15 @@ nlu:
     
 - intent: Site_Classify_Ask
   examples: |
-    - what are sites with low performance
-    - what are the sites with an average performance
-    - what are sites with a normal performance
-    - the best performant Sites
-    - sites with a good performance
-    - Can you provide a list of sites that have low performance?
-    - Which sites have an average performance
-    - Could you suggest the best performing sites
-    - Do you know any sites that demonstrate good performance
+    - what are sites with low profitability
+    - what are the sites with an average profitability
+    - what are sites with a normal profitability
+    - the best cost-effective Sites
+    - sites with a good cost-effective
+    - Can you provide a list of sites that have low profitability?
+    - Which sites have an average profitability
+    - Could you suggest the best cost-effective sites
+    - Do you know any sites that demonstrate good profitability
     
 - intent: Site_Solution_Ask
   examples: |
