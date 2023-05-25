@@ -1,11 +1,4 @@
 {
-  "deny": {
-    "precision": 1.0,
-    "recall": 1.0,
-    "f1-score": 1.0,
-    "support": 7,
-    "confused_with": {}
-  },
   "Site_Solution_Ask": {
     "precision": 1.0,
     "recall": 1.0,
@@ -13,11 +6,11 @@
     "support": 8,
     "confused_with": {}
   },
-  "greet": {
+  "inform_problem": {
     "precision": 1.0,
     "recall": 1.0,
     "f1-score": 1.0,
-    "support": 13,
+    "support": 7,
     "confused_with": {}
   },
   "Site_Classify_Ask": {
@@ -34,6 +27,13 @@
     "support": 10,
     "confused_with": {}
   },
+  "ask_help_definition": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1-score": 1.0,
+    "support": 24,
+    "confused_with": {}
+  },
   "predict_traffic_ML": {
     "precision": 1.0,
     "recall": 1.0,
@@ -41,14 +41,7 @@
     "support": 5,
     "confused_with": {}
   },
-  "inform_about_reseau_phy": {
-    "precision": 1.0,
-    "recall": 1.0,
-    "f1-score": 1.0,
-    "support": 32,
-    "confused_with": {}
-  },
-  "inform_problem": {
+  "deny": {
     "precision": 1.0,
     "recall": 1.0,
     "f1-score": 1.0,
@@ -62,21 +55,28 @@
     "support": 6,
     "confused_with": {}
   },
-  "Site_Questions": {
+  "bot_challenge": {
     "precision": 1.0,
     "recall": 1.0,
     "f1-score": 1.0,
     "support": 4,
     "confused_with": {}
   },
-  "ask_help_definition": {
+  "greet": {
     "precision": 1.0,
     "recall": 1.0,
     "f1-score": 1.0,
-    "support": 24,
+    "support": 13,
     "confused_with": {}
   },
-  "bot_challenge": {
+  "inform_about_reseau_phy": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1-score": 1.0,
+    "support": 32,
+    "confused_with": {}
+  },
+  "Site_Questions": {
     "precision": 1.0,
     "recall": 1.0,
     "f1-score": 1.0,

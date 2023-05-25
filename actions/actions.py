@@ -84,8 +84,7 @@ def autocorrect(input_word, coll,search,k=1):
         similar_words = [(w, get_simularity(input_word, w)) for w in dbs]
 
         # Find the word with the highest similarity score above the threshold
-        best_word = max(
-            similar_words, key=lambda x: x[1] if x[1] >= threshold else -1)
+        best_word = max(similar_words, key=lambda x: x[1] if x[1] >= threshold else -1)
         print(best_word)
         if best_word[1] < threshold:
             return "none"
@@ -127,7 +126,7 @@ class ValidateDefForm(Action):
             print(slot_value)
             if slot_value == "none":
                 dispatcher.utter_message(
-                    "Can you please write the term that you're looking for again")
+                    "Please verify the value sent")
                 return {}
             else:
                 query = {
@@ -138,17 +137,13 @@ class ValidateDefForm(Action):
                 }
                 documents = collection.find(query)
                 # loop through the matching documents and print their fields
-                i = 0
+                i = 1
                 if collection.count_documents(query) > 0:
                     if documents.count()<=10:
                         for document in documents:
-                            aff = str(i) + " - " + document['abbrv'] + " : " + \
-                                document['fullname'] + " " + document['definition']
+                            aff = str(i) + " - " + document['abbrv'] + " : " + document['fullname'] + " " + document['definition']
                             if document['others'] != "":
-                                aff = str(i) + " - " + document['abbrv'] + " : " + document['fullname'] + \
-                                    " " + \
-                                    document['definition'] + \
-                                    " for more information: " + document['others']
+                                aff = str(i) + " - " + document['abbrv'] + " : " + document['fullname'] + " " + document['definition'] +" for more information: " + document['others']
                             print(aff)
                             dispatcher.utter_message(aff)
                             i += 1
@@ -166,14 +161,6 @@ class ValidateDefForm(Action):
                     "number of features found with "+slot_value+" is "+str(i-1))
                 return {}
 
-
-# validate existence
-def clean_name(name):
-    collection = db["chap1"]
-    document = collection.find_one({"$or": [{"abbrv": name.upper()},
-                                            {"fullname": name.upper()}]})
-    if (document == None):
-        return "".join([c for c in name if c.isalpha()])
 
 
 # the reset all slots action
@@ -218,7 +205,7 @@ class ActionSiteInfo(Action):
                                                      {"Site_Code": slot_value}, {"Identifiant": slot_value}, {"BSC": slot_value}, {"Bande de fréquences": slot_value}, {"Gouvernorat": slot_value}, {"HBA(m)": slot_value}, {"LAC": slot_value}, {"Latitude": slot_value}, {"Longitude": slot_value}, {"Puissance isotrope rayonnée équivalente (PIRE) dans chaque secteur": slot_value}, {"Secteur": slot_value}, {"Type d'Installation": slot_value}, {"azimut du rayonnement maximum dans chaque secteur": slot_value}]})
                 print(documents)
                 if documents != None:
-                    if document.count()<=10:
+                    if documents.count()<=10:
                         i = 0
                         aff = ""
                         for document in documents:
@@ -231,12 +218,23 @@ class ActionSiteInfo(Action):
                             "the number of sites with "+slot_value+" is "+str(i))
                     else:
                         aff=[]
+                        liste=[]
                         for document in documents:
                             aff.append(document['Site_Code'])
-                        my_string = ''.join(aff)
+                            # Remove the _id field from the document.
+                            document = {**document, "_id": None}
+                            liste.append(document)
+                        my_string = ' - '.join(aff)
                         dispatcher.utter_message(my_string)
+                        df = pd.DataFrame(liste)
+                        print(df)
+                        folder_path = os.path.join(os.path.expanduser("~"), "Desktop", "save folder")
+                        os.makedirs(folder_path, exist_ok=True)
+                        # Save the DataFrame as a CSV file in the new folder.
+                        df.to_csv(os.path.join(folder_path, slot_value+'_result.csv'), index=False)
+                        dispatcher.utter_message("The file is saved in "+ folder_path)
                         dispatcher.utter_message(
-                            "the number of sites with "+slot_value+" is "+str(i))       
+                            "the number of sites with "+slot_value+" is "+str(documents.count()))       
                     return {}
 
 
@@ -259,6 +257,13 @@ def findsolution(dispatcher,x):
         # retrieve documents with specified columns
     documents = collection.find({})
     df = pd.DataFrame(list(documents))
+    new_column_names = df.columns.str.strip("(%)")
+
+
+    df.columns = new_column_names
+    new_column_names = df.columns.str.replace(" ",'')
+    df.columns = new_column_names
+    new_column_names
     # print(df)
     k = 0
     j = 0
@@ -319,7 +324,7 @@ def findsolution(dispatcher,x):
                         s[i] = s[i]+sol+' ;\n '
                     next = ""
     df['solution'] = s
-    # select columns ERBSId and solution by name using loc, and convert to a list
+    # select columns A and C by name using loc, and convert to a list
     selected_columns = df.loc[:, ['ERBSId', 'solution']].values.tolist()
     i=0
     s=[]
@@ -328,16 +333,16 @@ def findsolution(dispatcher,x):
             i+=1
             s.append(col[0])
     my_string = ' , '.join(s) 
-    solution=df[df['solution']!='']
-    # Create a new folder on the desktop
-    folder_path = os.path.join(os.path.expanduser("~"), "Desktop", "save folder")
-    os.makedirs(folder_path, exist_ok=True)
-    # Save the DataFrame as a CSV file in the new folder.
-    selected_df.to_csv(os.path.join(folder_path, 'KPI_validation_result.csv'), index=False)
     dispatcher.utter_message("there are problems in "+str(i)+" sites : "+my_string)
     j=0
     s=df['solution']
     id=df['ERBSId']
+    folder_path = os.path.join(os.path.expanduser("~"), "Desktop", "save folder")
+    os.makedirs(folder_path, exist_ok=True)
+        # Save the DataFrame as a CSV file in the new folder.
+    df=df.drop("_id",axis=1)
+    df.to_csv(os.path.join(folder_path, 'KPI_Validation.csv'), index=False)
+    dispatcher.utter_message("The validation file is saved in "+folder_path)
     for i in id:
         collection.update_many(
                 {'ERBS Id':i},
@@ -446,8 +451,8 @@ class ActionClassifySiteML(Action):
         nltk.download('vader_lexicon')
         sia = SentimentIntensityAnalyzer()
         sentence=tracker.latest_message.get("text")
-        result = sentiment_analysis(sentence)
-        print(result)
+        resultsent = sentiment_analysis(sentence)
+        print(resultsent)
 
         client = pymongo.MongoClient("mongodb://localhost:27017/")
         db = client["rasa"]
@@ -461,19 +466,18 @@ class ActionClassifySiteML(Action):
 
         # Retrieve all data from the collection
         data = mycol.find()
-
         result= pd.DataFrame(list(data))
+        result=result.fillna(0)
         result_traffic=result_traffic.drop(['Hour','_id','EUtranCell Id','Date'],axis=1)
         df=result_traffic.groupby('ERBS Id').sum()
         df=df.sort_values('Trafic PS (Gb)')
         df=df.reindex()
         X = df[['Trafic PS (Gb)']].values
         result=result.fillna(0)
-        result['Accessibility'] = result[['S1 Sig Succ Rate', 'RRC Setup Succ Rate', 'E-RAB Estab Succ Rate']].mean(axis=1)
-        result = result.drop(['_id','S1 Sig Succ Rate', 'RRC Setup Succ Rate', 'E-RAB Estab Succ Rate'], axis=1)
+        result['Accessibility'] = result[['S1 Sig Succ Rate', 'RRC Setup Succ Rate', 'E-RAB Estab Succ Rate']].mean()
+        result = result.drop(['_id','S1 Sig Succ Rate', 'RRC Setup Succ Rate','EUtranCell Id', 'E-RAB Estab Succ Rate'], axis=1)
         grouped = result.groupby('ERBS Id').mean()
         grouped_traffic = result_traffic.groupby('ERBS Id').sum()  
-
         df = pd.concat([grouped, grouped_traffic], axis=1)
         # Create a KMeans model with 3 clusters
         model = KMeans(n_clusters=3)
@@ -493,20 +497,20 @@ class ActionClassifySiteML(Action):
         # Use the dictionary to map the old labels to the new ones
         df['cluster'] = df['cluster'].map(label_map)
         # Map the cluster labels to performance levels
-        df['performance'] = df['cluster'].map({0: 'low', 1: 'normal',2: 'good'})
-        selected_df = df[df['performance'] == result]
+        df['profitability'] = df['cluster'].map({0: 'low', 1: 'normal',2: 'good'})
+        selected_df = df[df['profitability'] == resultsent]
         selected_df=selected_df[(selected_df['Call Drop Rate']<0.5) | (selected_df['Accessibility'] <98)]
         # Create a new folder on the desktop
         folder_path = os.path.join(os.path.expanduser("~"), "Desktop", "save folder")
         os.makedirs(folder_path, exist_ok=True)
         # Save the DataFrame as a CSV file in the new folder.
-        selected_df.to_csv(os.path.join(folder_path, 'Degraded '+result+' Traffic.csv'), index=False)
-        # Filter the dataframe to include only rows where performance equals "good"
+        selected_df.to_csv(os.path.join(folder_path, 'Degraded KPIs + '+resultsent+' Traffic.csv'), index=False)
+        # Filter the dataframe to include only rows where performance equals good
         selected_df =selected_df.reset_index('ERBS Id')
         name_string = selected_df['ERBS Id'].to_string(index=False)
 
         print(name_string)
-        dispatcher.utter_message("the sites with a "+result+" profitability and a degraded KPI are : ")
+        dispatcher.utter_message("the sites with a "+resultsent+" profitability and a degraded KPI are : ")
         dispatcher.utter_message(name_string)
         dispatcher.utter_message("the csv file containing the results is in "+ folder_path)
 
@@ -581,15 +585,7 @@ class ActionPredictTraffic(Action):
             seq_size = 120  # Number of time steps to look back 
             #Larger sequences (look further back) may improve forecasting.
 
-            trainX, trainY = to_sequences(train, seq_size)
-            testX, testY = to_sequences(test, seq_size)
-
-
-
-            print("Shape of training set: {}".format(trainX.shape))
-            print("Shape of test set: {}".format(testX.shape))
-            trainX = trainX.reshape((trainX.shape[0], 1, 1, 1, seq_size))
-            testX = testX.reshape((testX.shape[0], 1, 1, 1, seq_size))
+            
 
             model = Sequential()
             model.add(ConvLSTM2D(filters=64, kernel_size=(1,1), activation='relu', input_shape=(1, 1, 1, seq_size)))
@@ -607,6 +603,12 @@ class ActionPredictTraffic(Action):
             while(i<4):
                 i+=1
                 if(r2<0.65):
+                    trainX, trainY = to_sequences(train, seq_size)
+                    testX, testY = to_sequences(test, seq_size)
+                    print("Shape of training set: {}".format(trainX.shape))
+                    print("Shape of test set: {}".format(testX.shape))
+                    trainX = trainX.reshape((trainX.shape[0], 1, 1, 1, seq_size))
+                    testX = testX.reshape((testX.shape[0], 1, 1, 1, seq_size))
                     model.fit(trainX, trainY, validation_data=(testX, testY),
                     verbose=2, epochs=50)
 
@@ -626,38 +628,64 @@ class ActionPredictTraffic(Action):
                     # calculate root mean squared error
                     trainScore = math.sqrt(mean_squared_error(trainY[0], trainPredict[:,0]))
                     print('Train Score: %.2f RMSE' % (trainScore))
-                    dispatcher.utter_message('Train Score par RMSE: '+str(trainScore))
+                    
                     testScore = math.sqrt(mean_squared_error(testY[0], testPredict[:,0]))
                     print('Test Score: %.2f RMSE' % (testScore))
-                    dispatcher.utter_message('Test Score par RMSE: ' + str(testScore))
+                    
                     r2 = r2_score(testY[0], testPredict[:,0])
                     print('R2 score:', r2)
-                    dispatcher.utter_message('R2 score: '+ str(r2))
+                    
                     # shift train predictions for plotting
                     #we must shift the predictions so that they align on the x-axis with the original dataset. 
-                    trainPredictPlot = np.empty_like(dataset)
-                    trainPredictPlot[:, :] = np.nan
-                    trainPredictPlot[seq_size:len(trainPredict)+seq_size, :] = trainPredict
+                    
+            if(r2>0.65):
+                dispatcher.utter_message('Train Score par RMSE: '+str(trainScore))
+                dispatcher.utter_message('Test Score par RMSE: ' + str(testScore))
+                dataset=scaler.inverse_transform(dataset)
+                dispatcher.utter_message('R2 score: '+ str(r2))
+                #forecast
+                prediction = [] #Empty list to populate later with predictions
+                dates = [] #Empty list to populate later with dates
+                current_batch = test[-seq_size:,0] #Final data points in test 
+                last_datetime = grouped_data.index[-1]
+                current_batch = current_batch.reshape(1, 1, 1, 1, seq_size) #Reshape
+                ## Predict future, beyond test dates
+                future = 336 #Times
+                for i in range( future):
+                    current_pred = model.predict(current_batch)[0]
+                    prediction.append(current_pred)
+                    new_datetime = last_datetime + pd.DateOffset(hours=i+1)
+                    dates.append(new_datetime)
+                    new_value = np.array([[[[current_pred]]]])
+                    # remove the first value
+                    current_batch = current_batch[:, :, :, :, 1:]
+                    # add the new value at the end
+                    current_batch = np.concatenate((current_batch, new_value), axis=4)
+                prediction= scaler.inverse_transform(prediction)#inverse to get the actual values
+                s1 = pd.DataFrame(dataset, index=grouped_data.index)
+                df=pd.DataFrame(prediction,index=dates)
+                plt.figure(figsize=(17,10))
+                plt.plot(s1)
+                plt.plot(df)
+                plt.title("Traffic Prediction")
+                plt.xlabel("Datetime")
+                plt.ylabel("Traffic Volume")
+                plt.legend(('Actual', 'Predicted'))
+                buf = BytesIO()
+                plt.savefig(buf, format='png')
+                buf.seek(0)
 
-                    # shift test predictions for plotting
-                    testPredictPlot = np.empty_like(dataset)
-                    testPredictPlot[:, :] = np.nan
-                    testPredictPlot[len(trainPredict)+(seq_size*2)+1:len(dataset)-1, :] = testPredict
-
-                    # plot baseline and predictions
-                    plt.figure(figsize=(20,10))
-                    plt.plot(scaler.inverse_transform(dataset))
-                    plt.plot(trainPredictPlot)
-                    plt.plot(testPredictPlot)
-                    plt.legend(['Data', 'Train Predict result', 'Test Predict result'])
-                    # Save the plot to a temporary buffer
-                    buf = BytesIO()
-                    plt.savefig(buf, format='png')
-                    buf.seek(0)
-
-                    # Encode the image as base64
-                    image = base64.b64encode(buf.read()).decode('utf-8')
-
-                    # Send the image using the dispatcher
-                    dispatcher.utter_message(image=f"data:image/png;base64,{image}")
-        return [SlotSet("site", site)]
+                # Encode the image as base64
+                image = base64.b64encode(buf.read()).decode('utf-8')
+                folder_path = os.path.join(os.path.expanduser("~"), "Desktop", "save folder")
+                os.makedirs(folder_path, exist_ok=True)
+                # Save the DataFrame as a CSV file in the new folder.
+                df=df.reset_index()
+                df.to_csv(os.path.join(folder_path, site+'Prediction_result.csv'), index=False)
+                dispatcher.utter_message("the site predictions are saved in : "+ folder_path)
+                # Send the image using the dispatcher
+                dispatcher.utter_message(image=f"data:image/png;base64,{image}")
+                return [SlotSet("site", site)]
+            else:
+                dispatcher.utter_message('R2 score: '+ str(r2) + ' is too low to make a prediction please choose a different site')    
+                return [SlotSet("site", site)]
