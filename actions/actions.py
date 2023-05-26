@@ -394,23 +394,17 @@ class ActionSiteProblem(Action):
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         client = pymongo.MongoClient("mongodb://localhost:27017/")
         db = client["rasa"]
-        collection = db["Traffic"]
+        collection = db['Compteurs']
         msg=tracker.latest_message.get("text")
-        delimiters = ["for ", "of "]
+        delimiters = ["for", "of"]
         regex_pattern = '|'.join(map(re.escape, delimiters))
         split_string = re.split(regex_pattern, msg)[1]
-        split_string=split_string.replace(" ","_")
-        if '4G' not in split_string:
-            split_string='4G_'+split_string
-        print(split_string)
+        split_string='4G'+split_string
         split_string=split_string.upper()
-        print(split_string)
         site=autocorrect(split_string,collection,3)
         print(site)
         if len(site)!=0:
             site=site[0]
-        collection = db['Compteurs']
-        if site!="none":
             # retrieve documents with specified columns
             documents = collection.find({})
             df = pd.DataFrame(list(documents))
@@ -432,9 +426,9 @@ class ActionSiteProblem(Action):
 sia = SentimentIntensityAnalyzer()
 def sentiment_analysis(sentence):
             sentiment = sia.polarity_scores(sentence)
-            if sentiment['compound'] > 0.05:
+            if sentiment['compound'] > 0.3:
                 return 'good'
-            elif sentiment['compound'] < -0.05:
+            elif sentiment['compound'] < 0.01:
                 return 'low'
             else:
                 return 'normal'
@@ -448,7 +442,6 @@ class ActionClassifySiteML(Action):
             domain: Dict[Text, Any]) -> List[Dict[Text, Any]]:
         
 
-        nltk.download('vader_lexicon')
         sia = SentimentIntensityAnalyzer()
         sentence=tracker.latest_message.get("text")
         resultsent = sentiment_analysis(sentence)
@@ -582,7 +575,7 @@ class ActionPredictTraffic(Action):
                 return np.array(x),np.array(y)
                 
 
-            seq_size = 120  # Number of time steps to look back 
+            seq_size = 24  # Number of time steps to look back 
             #Larger sequences (look further back) may improve forecasting.
 
             
@@ -650,7 +643,7 @@ class ActionPredictTraffic(Action):
                 last_datetime = grouped_data.index[-1]
                 current_batch = current_batch.reshape(1, 1, 1, 1, seq_size) #Reshape
                 ## Predict future, beyond test dates
-                future = 336 #Times
+                future = 24 #Times
                 for i in range( future):
                     current_pred = model.predict(current_batch)[0]
                     prediction.append(current_pred)
@@ -661,7 +654,7 @@ class ActionPredictTraffic(Action):
                     current_batch = current_batch[:, :, :, :, 1:]
                     # add the new value at the end
                     current_batch = np.concatenate((current_batch, new_value), axis=4)
-                prediction= scaler.inverse_transform(prediction)#inverse to get the actual values
+                prediction= scaler.inverse_transform(prediction) #inverse to get the actual values
                 s1 = pd.DataFrame(dataset, index=grouped_data.index)
                 df=pd.DataFrame(prediction,index=dates)
                 plt.figure(figsize=(17,10))
