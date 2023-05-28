@@ -150,12 +150,25 @@ class ValidateDefForm(Action):
                         dispatcher.utter_message(
                     "number of features found with "+slot_value+" is "+str(i-1))
                     else: 
-                        aff=[]
+                        names=[]
                         i = 1
+                        folder_path = os.path.join(os.path.expanduser("~"), "Desktop", "save folder")
+                        os.makedirs(folder_path, exist_ok=True)
+                        folder_path=folder_path+'/features_'+slot_value+'.txt'
+                        file= open(folder_path, 'w')
                         for document in documents:
-                            aff.apprend(document['abbrv'])
+                            
+                            # Save the DataFrame as a CSV file in the new folder.
+                            aff = str(i) + " - " + document['abbrv'] + " : " + document['fullname'] + " " + document['definition']+"\n"
+                            if document['others'] != "":
+                                aff = str(i) + " - " + document['abbrv'] + " : " + document['fullname'] + " " + document['definition'] +" for more information: " + document['others']+"\n"
+                            
+                            file.write(aff)
+                            names.append(document['abbrv'])
                             i += 1
-                        my_string = ''.join(aff)
+                        file.close() 
+                        dispatcher.utter_message("The file is saved in "+ folder_path)
+                        my_string = ' - '.join(names)
                         dispatcher.utter_message(my_string)
                         dispatcher.utter_message(
                     "number of features found with "+slot_value+" is "+str(i-1))
@@ -462,16 +475,17 @@ class ActionClassifySiteML(Action):
         result= pd.DataFrame(list(data))
         result=result.fillna(0)
         result_traffic=result_traffic.drop(['Hour','_id','EUtranCell Id','Date'],axis=1)
-        df=result_traffic.groupby('ERBS Id').sum()
-        df=df.sort_values('Trafic PS (Gb)')
-        df=df.reindex()
-        X = df[['Trafic PS (Gb)']].values
+        
         result=result.fillna(0)
         result['Accessibility'] = result[['S1 Sig Succ Rate', 'RRC Setup Succ Rate', 'E-RAB Estab Succ Rate']].mean()
+        print(result['Accessibility'])
         result = result.drop(['_id','S1 Sig Succ Rate', 'RRC Setup Succ Rate','EUtranCell Id', 'E-RAB Estab Succ Rate'], axis=1)
         grouped = result.groupby('ERBS Id').mean()
         grouped_traffic = result_traffic.groupby('ERBS Id').sum()  
         df = pd.concat([grouped, grouped_traffic], axis=1)
+        df=df.sort_values(['Trafic PS (Gb)'])
+        df=df.reindex()
+        X = df[['Trafic PS (Gb)']].values
         # Create a KMeans model with 3 clusters
         model = KMeans(n_clusters=3)
 
