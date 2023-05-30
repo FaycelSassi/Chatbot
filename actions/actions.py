@@ -409,7 +409,7 @@ class ActionSiteProblem(Action):
         db = client["rasa"]
         collection = db['Compteurs']
         msg=tracker.latest_message.get("text")
-        delimiters = ["for", "of"]
+        delimiters = ["site","for", "of","to","in"]
         regex_pattern = '|'.join(map(re.escape, delimiters))
         split_string = re.split(regex_pattern, msg)[1]
         split_string='4G'+split_string
@@ -535,7 +535,7 @@ class ActionPredictTraffic(Action):
         db = client["rasa"]
         collection = db["Traffic"]
         msg=tracker.latest_message.get("text")
-        delimiters = ["for", "of"]
+        delimiters = ["site","for", "of","to","in"]
         regex_pattern = '|'.join(map(re.escape, delimiters))
         split_string = re.split(regex_pattern, msg)[1]
         split_string='4G'+split_string
@@ -645,7 +645,7 @@ class ActionPredictTraffic(Action):
                     # shift train predictions for plotting
                     #we must shift the predictions so that they align on the x-axis with the original dataset. 
                     
-            if(r2>0.65):
+            if(r2>0):
                 dispatcher.utter_message('Train Score par RMSE: '+str(trainScore))
                 dispatcher.utter_message('Test Score par RMSE: ' + str(testScore))
                 dataset=scaler.inverse_transform(dataset)
@@ -692,7 +692,4 @@ class ActionPredictTraffic(Action):
                 dispatcher.utter_message("the site predictions are saved in : "+ folder_path)
                 # Send the image using the dispatcher
                 dispatcher.utter_message(image=f"data:image/png;base64,{image}")
-                return [SlotSet("site", site)]
-            else:
-                dispatcher.utter_message('R2 score: '+ str(r2) + ' is too low to make a prediction please choose a different site')    
                 return [SlotSet("site", site)]

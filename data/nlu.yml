@@ -184,7 +184,7 @@ nlu:
     - what are the solutions for [BOUHAJLA_REP] (site)
     - Can you give me a solutions for the [Ain_Boumorra] (site)
     - What is wrong with [Chrichira] (site)
-    - Can you tell me what's the solution for [ElJem] (site)?"
+    - Can you tell me what's the solution for [ElJem] (site)?
     
 - lookup: site
   examples: |
