@@ -85,7 +85,6 @@ def autocorrect(input_word, coll,search,k=1):
 
         # Find the word with the highest similarity score above the threshold
         best_word = max(similar_words, key=lambda x: x[1] if x[1] >= threshold else -1)
-        print(best_word)
         if best_word[1] < threshold:
             return "none"
         return best_word[0]
@@ -99,7 +98,10 @@ def autocorrect(input_word, coll,search,k=1):
                 dbs.append(word_list)
     return difflib.get_close_matches(input_word, dbs, n=k)
 
-
+def remove_words(s):
+    words = s.split()
+    words = [word for word in words if word.upper() not in ['GIVE','ME','INFORMATION','INFO','INFOS','WHAT', 'WAS','I','IS','IN','ID','IDENTIFIED','BY','WITH','INCLUDING','AND','FOR','WANT','SITES','FEATURES']]
+    return ' '.join(words)
 
 class ValidateDefForm(Action):
     def name(self) -> Text:
@@ -116,7 +118,7 @@ class ValidateDefForm(Action):
             return {}
         else:
             # Get the collection
-
+            slot_values= remove_words(slot_values)
             collection = db["chap1"]
             slot_value = "none"
             for x in slot_values.split():
@@ -201,6 +203,7 @@ class ActionSiteInfo(Action):
             dispatcher.utter_message("No terms were added")
             return {}
         else:
+            slot_values= remove_words(slot_values)
             # Get the collection
             collection = db["reseau-physique"]
             slot_value = "none"
@@ -240,7 +243,6 @@ class ActionSiteInfo(Action):
                         my_string = ' - '.join(aff)
                         dispatcher.utter_message(my_string)
                         df = pd.DataFrame(liste)
-                        print(df)
                         folder_path = os.path.join(os.path.expanduser("~"), "Desktop", "save folder")
                         os.makedirs(folder_path, exist_ok=True)
                         # Save the DataFrame as a CSV file in the new folder.
@@ -409,9 +411,11 @@ class ActionSiteProblem(Action):
         db = client["rasa"]
         collection = db['Compteurs']
         msg=tracker.latest_message.get("text")
-        delimiters = ["site","for", "of","to","in"]
+        print(msg)
+        delimiters = [" site "," for ", " of "," to "," in "]
         regex_pattern = '|'.join(map(re.escape, delimiters))
         split_string = re.split(regex_pattern, msg)[1]
+        print(re.split(regex_pattern, msg))
         split_string='4G'+split_string
         split_string=split_string.upper()
         site=autocorrect(split_string,collection,3)
