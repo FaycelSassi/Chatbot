@@ -99,6 +99,7 @@ nlu:
     - i want some infos 
     - give me infos
     - i'd like to know about a site
+    - what are the sites identified by
     - i want information on a site
     - can i ask about site
     - Give me sites with the governorate
@@ -134,6 +135,9 @@ nlu:
 - intent: inform_problem
   examples: |
     - check counters
+    - check sites
+    - check site counters
+    - validate sites
     - What steps should I follow to diagnose and resolve counter errors
     - How can I address counter issues or abnormalities
     - What tools or techniques can I use to debug counter related issues

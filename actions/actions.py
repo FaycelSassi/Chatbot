@@ -100,7 +100,7 @@ def autocorrect(input_word, coll,search,k=1):
 
 def remove_words(s):
     words = s.split()
-    words = [word for word in words if word.upper() not in ['GIVE','ME','INFORMATION','INFO','INFOS','WHAT', 'WAS','I','IS','IN','ID','IDENTIFIED','BY','WITH','INCLUDING','AND','FOR','WANT','SITES','FEATURES']]
+    words = [word for word in words if word.upper() not in ['ARE','GIVE','ME','INFORMATION','INFO','INFOS','WHAT', 'WAS','I','IS','IN','ID','IDENTIFIED','BY','WITH','INCLUDING','AND','FOR','WANT','SITES','FEATURES']]
     return ' '.join(words)
 
 class ValidateDefForm(Action):
